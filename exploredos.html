@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ExploreOS">
+<title>ExploreOS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#1a0e05;overscroll-behavior:none}
+body{display:flex;flex-direction:column;align-items:center;font-family:'Special Elite','Courier New',serif}
+:root{
+  --paper:#f5e6c8;--paper2:#ede0b8;--paper3:#e4d4a0;
+  --ink:#2c1a0a;--ink2:#6b4020;--ink3:#8b5e2a;
+  --leather:#3d1f05;--leather2:#2c1a0a;
+  --border:#c4a46a;--border2:#a8884e;
+  --gold:#f0c878;--gold2:#c4923a;
+  --red:#c0392b;--green:#5c8a3c;--green2:#3d6028;
+  --lh:28px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)
+}
+.hidden{display:none!important}
+
+/* ── APP ── */
+#app{width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;background:var(–leather2);padding-top:var(–st)}
+
+/* ── HEADER ── */
+#hdr{background:var(–leather);padding:10px 14px 8px;border-bottom:3px double var(–border);flex-shrink:0}
+.hd-top{display:flex;align-items:center;gap:8px}
+#hd-compass{width:24px;height:24px;flex-shrink:0}
+.hd-title{font-size:18px;color:var(–gold);letter-spacing:3px;text-transform:uppercase;flex:1}
+.hd-stamp{border:2px solid var(–red);color:var(–red);font-size:7px;font-weight:700;letter-spacing:2px;padding:1px 5px;border-radius:2px;transform:rotate(-8deg);display:inline-block;opacity:.85}
+.hd-gear{background:none;border:none;color:var(–gold2);font-size:16px;cursor:pointer;padding:2px 4px;margin-left:4px}
+#hd-trip{font-size:10px;color:var(–gold2);letter-spacing:1px;margin-top:3px;padding-left:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+
+/* ── TABS ── */
+#tabs{display:flex;background:var(–paper2);border-bottom:2px solid var(–border2);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+#tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:1;min-width:52px;padding:7px 4px 5px;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:‘Special Elite’,serif;font-size:9px;color:var(–ink3);letter-spacing:.5px;text-transform:uppercase;background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer}
+.tab-btn.active{color:var(–ink);background:var(–paper);border-bottom-color:var(–ink3)}
+.tab-ico{font-size:14px;line-height:1}
+
+/* ── SCREEN ── */
+#screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(–paper);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.22) calc(var(–lh) - 1px),rgba(180,140,80,.22) var(–lh));padding:14px 16px calc(16px + var(–sb));position:relative}
+
+/* ── SHARED COMPONENTS ── */
+.sec-hd{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:4px 0 10px;padding-bottom:3px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:baseline}
+.sec-hd::after{content:‘✦’;color:var(–border);font-size:8px}
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;gap:10px;opacity:.5}
+.placeholder-icon{font-size:48px}
+.placeholder-text{font-family:‘Caveat’,cursive;font-size:18px;color:var(–ink2);text-align:center}
+.placeholder-sub{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;text-align:center}
+.tab-fab{position:fixed;bottom:calc(20px + var(–sb));right:50%;transform:translateX(calc(50% - 195px));width:50px;height:50px;border-radius:50%;background:var(–leather);border:2px solid var(–border2);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(–gold);cursor:pointer;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.tab-fab:active{background:var(–leather2);transform:translateX(calc(50% - 195px)) scale(.95)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(44,26,10,.72);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(–sb)}
+.modal-sheet{background:var(–paper);border-radius:6px 6px 0 0;width:100%;max-width:430px;padding:20px 18px 24px;border-top:3px double var(–border);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.18) calc(var(–lh) - 1px),rgba(180,140,80,.18) var(–lh));max-height:92dvh;overflow-y:auto}
+.modal-title{font-size:12px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;padding-bottom:4px;border-bottom:1px solid var(–border)}
+.field-row{margin-bottom:12px}
+.field-label{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px}
+.field-input,.field-textarea{width:100%;font-family:‘Caveat’,cursive;font-size:18px;color:var(–ink);background:rgba(255,255,255,.5);border:1px solid var(–border);border-radius:2px;padding:7px 10px;outline:none}
+.field-textarea{resize:none;min-height:100px;line-height:1.55}
+.field-input:focus,.field-textarea:focus{border-color:var(–ink3);background:rgba(255,255,255,.75)}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.btn-primary{flex:1;padding:11px;background:var(–leather);color:var(–gold);border:2px solid var(–ink3);border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.btn-primary:active{background:var(–leather2)}
+.btn-secondary{padding:11px 14px;background:transparent;color:var(–ink3);border:1px solid var(–border);border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.btn-danger{padding:11px 14px;background:transparent;color:var(–red);border:1px solid var(–red);border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.tag-toggle-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.tag-toggle{font-family:‘Special Elite’,serif;font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:2px;border:1px solid var(–border);background:rgba(255,255,255,.3);color:var(–ink3);cursor:pointer}
+.tag-toggle.on{border-color:var(–ink);background:rgba(255,255,255,.75);color:var(–ink)}
+.mood-row{display:flex;gap:8px;margin-top:4px}
+.mood-btn{flex:1;padding:8px 4px;border:1.5px solid var(–border);border-radius:2px;background:rgba(255,255,255,.3);font-size:22px;cursor:pointer;text-align:center}
+.mood-btn.on{border-color:var(–ink);background:rgba(255,255,255,.72)}
+.rating-row{display:flex;gap:6px;margin-top:4px}
+.rating-star{font-size:22px;cursor:pointer;opacity:.28;transition:opacity .1s;padding:2px}
+.rating-star.on{opacity:1}
+
+/* ── STATS ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:rgba(255,255,255,.5);border:1px solid var(–border);border-radius:2px;padding:9px 10px;position:relative;overflow:hidden;cursor:pointer;transition:background .15s}
+.stat-card:active{background:rgba(255,255,255,.75)}
+.stat-card::after{content:’’;position:absolute;bottom:0;right:0;width:14px;height:14px;border-top:14px solid var(–border);border-left:14px solid transparent;opacity:.5}
+.stat-lbl{font-size:8px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.stat-val{font-family:‘Caveat’,cursive;font-size:22px;font-weight:700;color:var(–ink);line-height:1.05}
+.stat-sub{font-size:8px;color:var(–ink3);margin-top:1px}
+.counter-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(–border)}
+.counter-emoji{font-size:16px;flex-shrink:0;width:22px;text-align:center}
+.counter-name{font-family:‘Caveat’,cursive;font-size:16px;color:var(–ink);flex:1}
+.counter-val{font-family:‘Caveat’,cursive;font-size:22px;font-weight:700;color:var(–leather);min-width:32px;text-align:center}
+.cnt-btn{width:30px;height:30px;border:2px solid var(–ink3);background:var(–paper2);border-radius:3px;font-size:18px;font-weight:700;color:var(–leather);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cnt-btn:active{background:var(–paper3)}
+.add-dashed{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;margin-top:10px;border:2px dashed var(–border);background:transparent;border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;color:var(–ink3);letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.add-dashed:active{background:rgba(255,255,255,.4)}
+.emoji-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.emoji-opt{width:36px;height:36px;font-size:20px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(–border);border-radius:3px;background:rgba(255,255,255,.4);cursor:pointer}
+.emoji-opt.on{border-color:var(–ink);background:rgba(255,255,255,.75)}
+
+/* ── DIARY ── */
+.day-hd{font-family:‘Special Elite’,serif;font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:14px 0 8px;padding-bottom:3px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:baseline}
+.day-hd:first-child{margin-top:0}
+.day-hd::after{content:‘✦’;color:var(–border);font-size:8px}
+.diary-card{background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:10px 12px 10px 14px;margin-bottom:8px;position:relative;cursor:pointer;transition:background .15s;user-select:none;-webkit-user-select:none}
+.diary-card:active{background:rgba(255,255,255,.72)}
+.diary-card::before{content:’’;position:absolute;left:0;top:0;bottom:0;width:4px;background:var(–ink3);border-radius:2px 0 0 2px}
+.diary-card.mood-great::before{background:var(–green)}
+.diary-card.mood-good::before{background:var(–gold2)}
+.diary-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.diary-time{font-size:9px;color:var(–ink3);letter-spacing:1px;text-transform:uppercase}
+.diary-loc{font-size:9px;color:var(–ink3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diary-body{font-family:‘Caveat’,cursive;font-size:15px;color:var(–ink);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.diary-card.open .diary-body{display:block;-webkit-line-clamp:unset}
+.diary-hint{font-size:8px;color:var(–border2);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.diary-card.open .diary-hint{text-align:right}
+.diary-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.diary-tag{font-size:8px;padding:2px 7px;border-radius:2px;letter-spacing:.5px;text-transform:uppercase}
+.dtag-loc{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
+.dtag-food{background:#fce8c0;color:#7a4010;border:1px solid #c4882a}
+.dtag-wild{background:#fbeaf0;color:#5a2878;border:1px solid #9870b8}
+.dtag-note{background:#e0ecf8;color:#1a4878;border:1px solid #6a9ac8}
+
+/* ── ITIN ── */
+.day-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.day-nav-btn{width:32px;height:32px;border:1.5px solid var(–border);border-radius:2px;background:rgba(255,255,255,.4);font-size:16px;color:var(–ink3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.day-nav-btn:disabled{opacity:.3;cursor:default}
+.day-nav-lbl{flex:1;text-align:center;font-size:11px;color:var(–ink);letter-spacing:1px;text-transform:uppercase}
+.day-nav-sub{font-size:8px;color:var(–ink3);display:block;margin-top:1px;text-transform:none;letter-spacing:0}
+.progress-bar{height:3px;background:var(–paper3);border-radius:2px;margin-bottom:14px;overflow:hidden}
+.progress-fill{height:100%;background:var(–green);border-radius:2px;transition:width .3s}
+.itin-item{display:flex;gap:0;position:relative}
+.itin-item:not(:last-child) .itin-dot-col::after{content:’’;position:absolute;left:15px;top:28px;bottom:-8px;width:1px;background:var(–border)}
+.itin-dot-col{width:32px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:6px;position:relative}
+.itin-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(–border2);background:var(–paper);z-index:1;transition:background .2s}
+.itin-dot.done{background:var(–green);border-color:var(–green2)}
+.itin-dot.warn{background:var(–red);border-color:#8b2a20}
+.itin-card{flex:1;margin-left:10px;margin-bottom:10px;background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:9px 12px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.itin-card:active{background:rgba(255,255,255,.72)}
+.itin-card.done{opacity:.65}
+.itin-card.done::after{content:’’;position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 6px,rgba(180,140,80,.07) 6px,rgba(180,140,80,.07) 7px)}
+.itin-time-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.itin-time{font-size:10px;color:var(–ink3);letter-spacing:1px}
+.itin-chk{font-size:14px;padding:2px 4px;cursor:pointer}
+.itin-name{font-family:‘Caveat’,cursive;font-size:16px;font-weight:700;color:var(–ink);line-height:1.2;margin-bottom:2px}
+.itin-note{font-family:‘Caveat’,cursive;font-size:13px;color:var(–ink2);line-height:1.4}
+.itin-badge{display:inline-block;font-size:7px;letter-spacing:.5px;text-transform:uppercase;padding:1px 5px;border-radius:2px;margin-top:5px}
+.icat-food{background:#fce8c0;color:#7a4010;border:1px solid #c4882a}
+.icat-sight{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
+.icat-move{background:#e0ecf8;color:#1a4878;border:1px solid #6a9ac8}
+.icat-sleep{background:#e8d8f0;color:#5a2878;border:1px solid #9870b8}
+.icat-other{background:var(–paper3);color:var(–ink3);border:1px solid var(–border)}
+
+/* ── MAP / PLACES ── */
+.filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-btn{font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:2px;white-space:nowrap;border:1px solid var(–border);background:rgba(255,255,255,.3);color:var(–ink3);cursor:pointer;flex-shrink:0}
+.filter-btn.on{background:var(–leather);color:var(–gold);border-color:var(–ink3)}
+.map-wrap{border:1px solid var(–border);border-radius:2px;margin-bottom:14px;overflow:hidden;background:#ede0b8}
+.map-wrap svg{width:100%;display:block}
+.places-list{display:flex;flex-direction:column;gap:8px}
+.place-card{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:10px 12px;cursor:pointer;transition:background .15s;position:relative}
+.place-card:active{background:rgba(255,255,255,.72)}
+.place-card.visited::after{content:‘✓’;position:absolute;top:7px;right:10px;font-size:11px;color:var(–green)}
+.place-ico{font-size:22px;flex-shrink:0;width:32px;text-align:center;padding-top:1px}
+.place-body{flex:1;min-width:0;padding-right:16px}
+.place-name{font-family:‘Caveat’,cursive;font-size:16px;font-weight:700;color:var(–ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-addr{font-size:9px;color:var(–ink3);letter-spacing:.5px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-note{font-family:‘Caveat’,cursive;font-size:13px;color:var(–ink2);line-height:1.4}
+.place-footer{display:flex;align-items:center;gap:8px;margin-top:5px}
+.place-stars{font-size:11px;color:#c07820}
+.place-badge{font-size:7px;letter-spacing:.5px;text-transform:uppercase;padding:1px 5px;border-radius:2px}
+.pcat-cafe{background:#fce8c0;color:#7a4010;border:1px solid #c4882a}
+.pcat-food{background:#d4e8d4;color:#1a4820;border:1px solid #5a9860}
+.pcat-bakery{background:#fde8d0;color:#7a3010;border:1px solid #c4682a}
+.pcat-sight{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
+.pcat-other{background:var(–paper3);color:var(–ink3);border:1px solid var(–border)}
+
+/* ── CHECK ── */
+.check-list{display:flex;flex-direction:column;gap:0}
+.check-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(–border);cursor:pointer}
+.check-box{width:18px;height:18px;border:2px solid var(–ink3);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5);transition:background .15s}
+.check-box.done{background:var(–green);border-color:var(–green2)}
+.check-text{font-family:‘Caveat’,cursive;font-size:15px;color:var(–ink);flex:1}
+.check-text.done{color:var(–ink3);text-decoration:line-through}
+.check-note{font-size:10px;color:var(–ink3)}
+.check-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid var(–border);border-radius:3px;overflow:hidden}
+.check-tab{flex:1;padding:8px;background:transparent;border:none;font-family:‘Special Elite’,serif;font-size:10px;color:var(–ink3);letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.check-tab.on{background:var(–leather);color:var(–gold)}
+
+/* ── RECIPES ── */
+.recipe-card{background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.recipe-card:active{background:rgba(255,255,255,.72)}
+.recipe-title{font-size:14px;color:var(–ink);letter-spacing:1px;margin-bottom:2px}
+.recipe-src{font-size:8px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.recipe-slbl{font-size:8px;color:var(–ink3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.recipe-text{font-family:‘Caveat’,cursive;font-size:14px;color:var(–ink2);line-height:1.5}
+.recipe-divider{border:none;border-top:1px dashed var(–border);margin:8px 0}
+.recipe-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.recipe-tag{font-size:7px;padding:2px 6px;border-radius:2px;background:var(–paper3);color:var(–ink3);border:1px solid var(–border);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── TRIPS ── */
+.trip-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.trip-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:11px 14px;cursor:pointer;transition:background .15s}
+.trip-item:active{background:rgba(255,255,255,.72)}
+.trip-item.cur{border-color:var(–ink3);background:rgba(255,255,255,.65)}
+.trip-name{font-family:‘Caveat’,cursive;font-size:17px;font-weight:700;color:var(–ink)}
+.trip-dates{font-size:9px;color:var(–ink3);letter-spacing:.5px;margin-top:1px}
+.trip-cur-badge{font-size:8px;color:var(–green);border:1px solid var(–green);border-radius:2px;padding:1px 5px;text-transform:uppercase;letter-spacing:1px}
+
+/* ── SETTINGS ── */
+.sset-sec{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:16px 0 8px;padding-bottom:3px;border-bottom:1px solid var(–border)}
+.sset-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(–border);gap:12px}
+.sset-lbl{font-family:‘Caveat’,cursive;font-size:15px;color:var(–ink);flex:1}
+.sset-sub{font-size:8px;color:var(–ink3);letter-spacing:.5px;display:block;margin-top:1px}
+.sset-btn{font-size:9px;color:var(–ink3);border:1px solid var(–border);border-radius:2px;background:rgba(255,255,255,.4);padding:6px 10px;cursor:pointer;white-space:nowrap;letter-spacing:.5px;text-transform:uppercase}
+.sset-btn.pri{background:var(–leather);color:var(–gold);border-color:var(–ink3)}
+.fb-badge{font-size:9px;padding:5px 9px;border-radius:2px;letter-spacing:.5px;text-transform:uppercase}
+.fb-ok{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
+.fb-off{background:var(–paper3);color:var(–ink3);border:1px solid var(–border)}
+.fb-err{background:#fce8c0;color:#7a3010;border:1px solid #c4682a}
+.fb-ing{background:#fce8c0;color:#7a3010;border:1px solid #c4682a}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(16px + var(–sb));left:50%;transform:translateX(-50%) translateY(80px);background:var(–leather);color:var(–gold);border:1px solid var(–border);border-radius:3px;padding:8px 16px;font-size:11px;letter-spacing:1px;text-transform:uppercase;z-index:200;transition:transform .25s ease;white-space:nowrap;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <div class="hd-top">
+      <svg id="hd-compass" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10.5" stroke="#f0c878" stroke-width="1.2"/>
+        <circle cx="12" cy="12" r="1.8" fill="#f0c878"/>
+        <polygon points="12,3.5 13.2,11 12,9.8 10.8,11" fill="#c0392b"/>
+        <polygon points="12,20.5 13.2,13 12,14.2 10.8,13" fill="#f0c878"/>
+        <polygon points="3.5,12 11,10.8 9.8,12 11,13.2" fill="#f0c878"/>
+        <polygon points="20.5,12 13,10.8 14.2,12 13,13.2" fill="#f0c878"/>
+        <text x="12" y="7.5" text-anchor="middle" font-size="4.5" fill="#f0c878" font-family="serif" font-weight="700">N</text>
+      </svg>
+      <span class="hd-title">ExploreOS</span>
+      <span class="hd-stamp">Field Log</span>
+      <button class="hd-gear" onclick="openModal('m-settings')" title="Nastavení">⚙</button>
+    </div>
+    <div id="hd-trip" onclick="openModal('m-trips')" title="Výpravy">Načítám…</div>
+  </div>
+
+  <div id="tabs">
+    <button class="tab-btn active" data-tab="stats"><span class="tab-ico">📊</span>Data</button>
+    <button class="tab-btn" data-tab="itin"><span class="tab-ico">🗓</span>Plán</button>
+    <button class="tab-btn" data-tab="diary"><span class="tab-ico">✍</span>Deník</button>
+    <button class="tab-btn" data-tab="map"><span class="tab-ico">🗺</span>Místa</button>
+    <button class="tab-btn" data-tab="check"><span class="tab-ico">☑</span>Check</button>
+    <button class="tab-btn" data-tab="recipe"><span class="tab-ico">🍽</span>Recepty</button>
+  </div>
+
+  <div id="screen"></div>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Counter -->
+
+<div class="modal-overlay hidden" id="m-counter">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mc-ttl">Nový čítač</div>
+    <div class="field-row"><label class="field-label">Název</label><input class="field-input" id="mc-name" maxlength="30" placeholder="co počítáš…"></div>
+    <div class="field-row"><label class="field-label">Ikona</label><div class="emoji-picker" id="mc-emojis"></div></div>
+    <div class="field-row"><label class="field-label">Počáteční hodnota</label><input class="field-input" id="mc-val" type="number" value="0" min="0" inputmode="numeric"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-counter')">Zpět</button>
+      <button class="btn-danger hidden" id="mc-del" onclick="deleteCounter()">Smazat</button>
+      <button class="btn-primary" onclick="saveCounter()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stat edit -->
+
+<div class="modal-overlay hidden" id="m-stat">
+  <div class="modal-sheet">
+    <div class="modal-title" id="ms-ttl">Upravit</div>
+    <div class="field-row"><label class="field-label" id="ms-lbl">Hodnota</label><input class="field-input" id="ms-val"></div>
+    <div class="field-row hidden" id="ms-sub-row"><label class="field-label" id="ms-sub-lbl">Detail</label><input class="field-input" id="ms-sub"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-stat')">Zpět</button>
+      <button class="btn-primary" onclick="saveStat()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Diary -->
+
+<div class="modal-overlay hidden" id="m-diary">
+  <div class="modal-sheet">
+    <div class="modal-title" id="md-ttl">Nový záznam</div>
+    <div class="field-row"><label class="field-label">Záznam</label><textarea class="field-textarea" id="md-text" placeholder="co se stalo, co tě zaujalo…"></textarea></div>
+    <div class="field-row"><label class="field-label">Místo (volitelné)</label><input class="field-input" id="md-loc" maxlength="60" placeholder="kde jsi byl/a…"></div>
+    <div class="field-row"><label class="field-label">Nálada</label>
+      <div class="mood-row" id="md-mood">
+        <button class="mood-btn" data-m="great" onclick="setMood(this)">😄</button>
+        <button class="mood-btn" data-m="good"  onclick="setMood(this)">🙂</button>
+        <button class="mood-btn" data-m="meh"   onclick="setMood(this)">😐</button>
+      </div>
+    </div>
+    <div class="field-row"><label class="field-label">Štítky</label>
+      <div class="tag-toggle-row" id="md-tags">
+        <button class="tag-toggle" data-t="loc"  onclick="toggleTag(this)">📍 místo</button>
+        <button class="tag-toggle" data-t="food" onclick="toggleTag(this)">🍽 jídlo</button>
+        <button class="tag-toggle" data-t="wild" onclick="toggleTag(this)">🐾 příroda</button>
+        <button class="tag-toggle" data-t="note" onclick="toggleTag(this)">💡 tip</button>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-diary')">Zpět</button>
+      <button class="btn-danger hidden" id="md-del" onclick="deleteDiary()">Smazat</button>
+      <button class="btn-primary" onclick="saveDiary()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Itin -->
+
+<div class="modal-overlay hidden" id="m-itin">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mi-ttl">Nová zastávka</div>
+    <div class="field-row"><label class="field-label">Čas</label><input class="field-input" id="mi-time" type="time"></div>
+    <div class="field-row"><label class="field-label">Název</label><input class="field-input" id="mi-name" maxlength="60" placeholder="co, kam…"></div>
+    <div class="field-row"><label class="field-label">Poznámka</label><input class="field-input" id="mi-note" maxlength="100" placeholder="vstup, cena, tip…"></div>
+    <div class="field-row"><label class="field-label">Kategorie</label>
+      <div class="tag-toggle-row" id="mi-cats">
+        <button class="tag-toggle" data-c="sight" onclick="selItinCat(this)">🏛 památka</button>
+        <button class="tag-toggle" data-c="food"  onclick="selItinCat(this)">🍽 jídlo</button>
+        <button class="tag-toggle" data-c="move"  onclick="selItinCat(this)">🚶 přesun</button>
+        <button class="tag-toggle" data-c="sleep" onclick="selItinCat(this)">🛏 ubytování</button>
+        <button class="tag-toggle" data-c="other" onclick="selItinCat(this)">✦ ostatní</button>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-itin')">Zpět</button>
+      <button class="btn-danger hidden" id="mi-del" onclick="deleteItin()">Smazat</button>
+      <button class="btn-primary" onclick="saveItin()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Place -->
+
+<div class="modal-overlay hidden" id="m-place">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mp-ttl">Nové místo</div>
+    <div class="field-row"><label class="field-label">Název</label><input class="field-input" id="mp-name" maxlength="60" placeholder="název místa…"></div>
+    <div class="field-row"><label class="field-label">Adresa</label><input class="field-input" id="mp-addr" maxlength="80" placeholder="ulice, čtvrť…"></div>
+    <div class="field-row"><label class="field-label">Poznámka</label><textarea class="field-textarea" id="mp-note" maxlength="200" style="min-height:80px" placeholder="tip, cena, doporučení…"></textarea></div>
+    <div class="field-row"><label class="field-label">Kategorie</label>
+      <div class="tag-toggle-row" id="mp-cats">
+        <button class="tag-toggle" data-c="sight"  onclick="selPlaceCat(this)">🏛 památka</button>
+        <button class="tag-toggle" data-c="cafe"   onclick="selPlaceCat(this)">☕ kavárna</button>
+        <button class="tag-toggle" data-c="food"   onclick="selPlaceCat(this)">🍝 jídlo</button>
+        <button class="tag-toggle" data-c="bakery" onclick="selPlaceCat(this)">🥐 pekárna</button>
+        <button class="tag-toggle" data-c="other"  onclick="selPlaceCat(this)">✦ ostatní</button>
+      </div>
+    </div>
+    <div class="field-row"><label class="field-label">Hodnocení</label>
+      <div class="rating-row" id="mp-stars">
+        <span class="rating-star" data-r="1" onclick="setPlaceRating(1)">★</span>
+        <span class="rating-star" data-r="2" onclick="setPlaceRating(2)">★</span>
+        <span class="rating-star" data-r="3" onclick="setPlaceRating(3)">★</span>
+        <span class="rating-star" data-r="4" onclick="setPlaceRating(4)">★</span>
+        <span class="rating-star" data-r="5" onclick="setPlaceRating(5)">★</span>
+      </div>
+    </div>
+    <div class="field-row"><label class="field-label">Status</label>
+      <div class="tag-toggle-row">
+        <button class="tag-toggle" id="mp-vis-y" onclick="setPlaceVis(true)">✓ Navštíveno</button>
+        <button class="tag-toggle" id="mp-vis-n" onclick="setPlaceVis(false)">○ Chci navštívit</button>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-place')">Zpět</button>
+      <button class="btn-danger hidden" id="mp-del" onclick="deletePlace()">Smazat</button>
+      <button class="btn-primary" onclick="savePlace()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Check item -->
+
+<div class="modal-overlay hidden" id="m-check">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mch-ttl">Položka</div>
+    <div class="field-row"><label class="field-label">Název</label><input class="field-input" id="mch-name" maxlength="80" placeholder="co si sbalit / co vidět…"></div>
+    <div class="field-row"><label class="field-label">Poznámka</label><input class="field-input" id="mch-note" maxlength="80" placeholder="velikost, množství, tip…"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-check')">Zpět</button>
+      <button class="btn-danger" id="mch-del" onclick="deleteCheck()">Smazat</button>
+      <button class="btn-primary" onclick="saveCheck()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recipe -->
+
+<div class="modal-overlay hidden" id="m-recipe">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mr-ttl">Nový recept</div>
+    <div class="field-row"><label class="field-label">Název</label><input class="field-input" id="mr-name" maxlength="60" placeholder="název jídla…"></div>
+    <div class="field-row"><label class="field-label">Zdroj (kdo ti prozradil)</label><input class="field-input" id="mr-src" maxlength="80" placeholder="restaurace, paní na trhu…"></div>
+    <div class="field-row"><label class="field-label">Suroviny</label><textarea class="field-textarea" id="mr-ing" maxlength="400" placeholder="suroviny oddělené čárkou nebo na řádky…" style="min-height:80px"></textarea></div>
+    <div class="field-row"><label class="field-label">Postup</label><textarea class="field-textarea" id="mr-steps" maxlength="600" placeholder="jak se to dělá…" style="min-height:80px"></textarea></div>
+    <div class="field-row"><label class="field-label">Štítky (oddělené čárkou)</label><input class="field-input" id="mr-tags" maxlength="100" placeholder="pasta, vegetarian…"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-recipe')">Zpět</button>
+      <button class="btn-danger hidden" id="mr-del" onclick="deleteRecipe()">Smazat</button>
+      <button class="btn-primary" onclick="saveRecipe()">Uložit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- New trip -->
+
+<div class="modal-overlay hidden" id="m-newtrip">
+  <div class="modal-sheet">
+    <div class="modal-title">Nová výprava</div>
+    <div class="field-row"><label class="field-label">Název výpravy</label><input class="field-input" id="nt-name" maxlength="60" placeholder="Itálie 2025…"></div>
+    <div class="field-row"><label class="field-label">Od</label><input class="field-input" id="nt-from" type="date"></div>
+    <div class="field-row"><label class="field-label">Do</label><input class="field-input" id="nt-to" type="date"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('m-newtrip')">Zpět</button>
+      <button class="btn-primary" onclick="createTrip()">Vytvořit ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trips manager -->
+
+<div class="modal-overlay hidden" id="m-trips">
+  <div class="modal-sheet">
+    <div class="modal-title">Moje výpravy</div>
+    <div class="trip-list" id="trip-list"></div>
+    <button class="add-dashed" onclick="closeModal('m-trips');openModal('m-newtrip')">+ Nová výprava</button>
+  </div>
+</div>
+
+<!-- Settings -->
+
+<div class="modal-overlay hidden" id="m-settings">
+  <div class="modal-sheet">
+    <div class="modal-title">⚙ Nastavení & Data</div>
+
+```
+<div class="sset-sec">Záloha dat</div>
+<div class="sset-row">
+  <span class="sset-lbl">Exportovat výpravu<span class="sset-sub">Stáhne JSON soubor se vším</span></span>
+  <button class="sset-btn pri" onclick="exportTrip()">⬇ Export</button>
+</div>
+<div class="sset-row">
+  <span class="sset-lbl">Importovat výpravu<span class="sset-sub">Načte JSON ze souboru</span></span>
+  <button class="sset-btn" onclick="document.getElementById('imp-file').click()">⬆ Import</button>
+  <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importTrip(event)">
+</div>
+
+<div class="sset-sec">Firebase Sync</div>
+<div class="sset-row">
+  <span class="sset-lbl">Stav<span class="sset-sub" id="fb-txt">Nezapnuto</span></span>
+  <span class="fb-badge fb-off" id="fb-badge">OFF</span>
+</div>
+<div class="field-row" style="margin-top:8px"><label class="field-label">Firebase API Key</label><input class="field-input" id="fb-key" placeholder="AIzaSy…" autocomplete="off"></div>
+<div class="field-row"><label class="field-label">Database URL</label><input class="field-input" id="fb-url" placeholder="https://xxx.firebaseio.com"></div>
+<div class="field-row"><label class="field-label">Kód výpravy (sdílený klíč)</label><input class="field-input" id="fb-trip" placeholder="rodina2025" autocomplete="off"></div>
+<div class="modal-btns" style="margin-top:4px">
+  <button class="btn-secondary" onclick="fbDisconnect()">Odpojit</button>
+  <button class="btn-primary" onclick="fbConnect()">Připojit ✦</button>
+</div>
+<p style="font-size:8px;color:var(--ink3);margin-top:8px;line-height:1.6;letter-spacing:.5px">Firebase Realtime DB umožňuje live sync. Vyžaduje vlastní projekt. Klíče jsou uloženy jen lokálně.</p>
+
+<div class="sset-sec">Výprava</div>
+<div class="sset-row">
+  <span class="sset-lbl">Smazat výpravu<span class="sset-sub">Nevratně smaže vše pro tuto cestu</span></span>
+  <button class="sset-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteTrip()">✕ Smazat</button>
+</div>
+<div class="modal-btns" style="margin-top:16px"><button class="btn-primary" style="width:100%" onclick="closeModal('m-settings')">Zavřít</button></div>
+```
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// DB  (IndexedDB wrapper)
+// ═══════════════════════════════════
+const DB_NAME = 'exploreos', DB_VER = 7;
+let db;
+
+function openDB() {
+  return new Promise((res,rej) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = e => {
+      const d = e.target.result;
+      const os = (name, opts, idx=[]) => {
+        if (d.objectStoreNames.contains(name)) return;
+        const s = d.createObjectStore(name, opts);
+        idx.forEach(([n,k,u]) => s.createIndex(n, k, {unique:!!u}));
+      };
+      os('trips',    {keyPath:'id',autoIncrement:true});
+      os('stats',    {keyPath:'tripId'});
+      os('counters', {keyPath:'id',autoIncrement:true}, [['tripId','tripId']]);
+      os('diary',    {keyPath:'id',autoIncrement:true}, [['tripId','tripId'],['ts','ts']]);
+      os('itin',     {keyPath:'id',autoIncrement:true}, [['tripId','tripId'],['tripDay',['tripId','day']]]);
+      os('places',   {keyPath:'id',autoIncrement:true}, [['tripId','tripId']]);
+      os('check',    {keyPath:'id',autoIncrement:true}, [['tripId','tripId'],['tripList',['tripId','list']]]);
+      os('recipes',  {keyPath:'id',autoIncrement:true}, [['tripId','tripId']]);
+    };
+    r.onsuccess = e => { db = e.target.result; res(db); };
+    r.onerror   = e => rej(e.target.error);
+  });
+}
+
+const tx  = (stores, mode='readonly') => db.transaction(stores, mode);
+const tst = (store, mode='readonly') => tx(store, mode).objectStore(store);
+
+function dbGet(store, key) {
+  return new Promise((res,rej) => { const r = tst(store).get(key); r.onsuccess=e=>res(e.target.result); r.onerror=e=>rej(e.target.error); });
+}
+function dbGetAll(store, idx, val) {
+  return new Promise((res,rej) => {
+    const s = tst(store);
+    const r = idx ? s.index(idx).getAll(val) : s.getAll();
+    r.onsuccess=e=>res(e.target.result); r.onerror=e=>rej(e.target.error);
+  });
+}
+function dbPut(store, obj) {
+  return new Promise((res,rej) => { const r = tst(store,'readwrite').put(obj); r.onsuccess=e=>res(e.target.result); r.onerror=e=>rej(e.target.error); });
+}
+function dbDelete(store, key) {
+  return new Promise((res,rej) => { const r = tst(store,'readwrite').delete(key); r.onsuccess=()=>res(); r.onerror=e=>rej(e.target.error); });
+}
+function dbClear(store) {
+  return new Promise((res,rej) => { const r = tst(store,'readwrite').clear(); r.onsuccess=()=>res(); r.onerror=e=>rej(e.target.error); });
+}
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let trip     = null;  // current trip object
+let curTab   = 'stats';
+let itinDay  = null;
+let checkList = 'packing';
+let _mapFilter = 'all';
+// place modal state
+let _pId=null, _pCat='sight', _pRating=0, _pVis=false;
+
+// ═══════════════════════════════════
+// BOOT
+// ═══════════════════════════════════
+async function boot() {
+  await openDB();
+  let trips = await dbGetAll('trips');
+  if (!trips.length) await seed();
+  trips = await dbGetAll('trips');
+  trip = trips[trips.length - 1];
+  updateHdr();
+  bindTabs();
+  renderTab('stats');
+  fbInit();
+}
+
+async function seed() {
+  const tid = await dbPut('trips', {name:'Itálie 2025', dateFrom:'2025-07-12', dateTo:'2025-07-26'});
+  const now = Date.now(), y = now - 86400000;
+
+  await dbPut('stats', {tripId:tid, steps:0, km:0, budget:800, spent:0, bestCafe:{val:0,note:''}});
+
+  for (const c of [
+    {emoji:'🐱',name:'Kočky'}, {emoji:'🥐',name:'Pekárny'},
+    {emoji:'⛪',name:'Kostely'}, {emoji:'🍕',name:'Pizzy'}
+  ]) await dbPut('counters', {tripId:tid, ...c, value:0});
+
+  for (const e of [
+    {text:'Ranní Řím bez turistů je jiné město. Stáli jsme u fontány sami — pochopil jsem proč sem všichni jezdí.',loc:'Trastevere',tags:['loc'],mood:'great',ts:y+9*3600000},
+    {text:'Tři kočky na schodech u chrámu. Místní jim nosí krmení každý den.',loc:'Largo Argentina',tags:['wild'],mood:'great',ts:y+19*3600000+2520000},
+    {text:'Pantheon bez fronty — přišli jsme před 10:30. Díra v kupoli je impozantnější než na fotkách.',loc:'Pantheon',tags:['loc','note'],mood:'good',ts:now-3*3600000},
+  ]) await dbPut('diary', {tripId:tid, ...e});
+
+  const today = new Date().toISOString().slice(0,10);
+  for (const item of [
+    {time:'08:30',name:'Snídaně — Bar San Calisto',note:'Cappuccino + cornetto, 1,20 €',cat:'food',done:true,order:0},
+    {time:'10:00',name:'Pantheon',note:'Vstup zdarma před 10:30',cat:'sight',done:true,order:1},
+    {time:'13:00',name:'Oběd — Testaccio market',note:'Suppli al telefono + cacio e pepe',cat:'food',done:false,order:2},
+    {time:'15:30',name:'Colosseum + Forum',note:'⚠ Zkontrolovat vstupenky!',cat:'sight',done:false,order:3},
+    {time:'19:30',name:'Aperol na Ponte Sisto',note:'Západ slunce nad Tiberou',cat:'other',done:false,order:4},
+  ]) await dbPut('itin', {tripId:tid, day:today, ...item});
+
+  for (const p of [
+    {name:'Bar San Calisto',cat:'cafe',icon:'☕',rating:5,note:'Nejlepší cappuccino — 1,20 €. Sednout venku.',addr:'Piazza S. Maria in Trastevere',visited:true},
+    {name:'Forno Campo de\'Fiori',cat:'bakery',icon:'🥐',rating:5,note:'Pizza bianca — fronta za to stojí.',addr:'Campo de\'Fiori 22',visited:true},
+    {name:'Largo Argentina',cat:'sight',icon:'🏛',rating:4,note:'Kočičí kolonie u ruin. Vstup zdarma.',addr:'Largo di Torre Argentina',visited:true},
+    {name:'Da Enzo al 29',cat:'food',icon:'🍝',rating:5,note:'Nejlepší cacio e pepe ve čtvrti. Rezervovat!',addr:'Via dei Vascellari 29',visited:false},
+    {name:'Giolitti',cat:'other',icon:'🍦',rating:4,note:'Klasická zmrzlinárna od roku 1900.',addr:'Via degli Uffici del Vicario 40',visited:false},
+    {name:'Ponte Sisto',cat:'sight',icon:'🌅',rating:5,note:'Západ slunce nad Tiberou. Aperol na nábřeží.',addr:'Ponte Sisto',visited:false},
+  ]) await dbPut('places', {tripId:tid, ...p});
+
+  for (const [list, items] of [
+    ['packing', ['Cestovní pojištění','Powerbank','Adaptér EU','Lehká bunda','Záložní karta','Offline mapy — stáhnout']],
+    ['bucket',  ['Pantheon','Trastevere večer','Colosseum + Forum','Aperol na Ponte Sisto','Zmrzlina u Giolitti']],
+  ]) for (const [order, name] of items.entries())
+      await dbPut('check', {tripId:tid, list, name, note:'', done: order < 2, order});
+
+  for (const r of [
+    {title:'Cacio e Pepe',source:'Paní z trattorii u Forum · 14.7.',ingredients:'Spaghetti, pecorino romano (hodně), černý pepř celý (drcený v hmoždíři), pasta water',steps:'Žádný olej, žádná smetana. Teplo vypnout před přidáním sýra. Pasta water je klíč.',tags:['pasta','vegetarian']},
+    {title:'Suppli al Telefono',source:'Testaccio market · 13.7.',ingredients:'Rizoto (rajčata, hovězí ragù), mozzarella, strouhanka, vejce, olej na smažení',steps:'Mozzarella doprostřed. Obalit, smažit. Název od taveného sýra co se táhne jak kabel.',tags:['smažené','street food']},
+  ]) await dbPut('recipes', {tripId:tid, ...r, ts:Date.now()});
+}
+
+// ═══════════════════════════════════
+// HEADER / TABS
+// ═══════════════════════════════════
+function updateHdr() {
+  if (!trip) return;
+  const d = dayNum(trip.dateFrom, trip.dateTo);
+  document.getElementById('hd-trip').textContent =
+    `${trip.name}  ·  ${fmt(trip.dateFrom)} – ${fmt(trip.dateTo)}${d ? '  ·  den '+d : ''}`;
+}
+function fmt(iso) { if (!iso) return ''; const [,m,d]=iso.split('-'); return `${d}.${m}.`; }
+function dayNum(from, to) {
+  const n=new Date(); n.setHours(0,0,0,0);
+  const s=new Date(from); s.setHours(0,0,0,0);
+  const e=new Date(to);   e.setHours(0,0,0,0);
+  return (n>=s && n<=e) ? Math.floor((n-s)/86400000)+1 : null;
+}
+
+function bindTabs() {
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); curTab = b.dataset.tab;
+    rmFab(); renderTab(curTab);
+  }));
+}
+
+function rmFab() { document.querySelectorAll('.tab-fab').forEach(f=>f.remove()); }
+function addFab(icon, fn, label='') {
+  const f=document.createElement('button'); f.className='tab-fab';
+  f.innerHTML=icon; f.setAttribute('aria-label',label); f.onclick=fn;
+  document.getElementById('app').appendChild(f);
+}
+
+function renderTab(tab) {
+  const map = {stats:renderStats, itin:renderItin, diary:renderDiary, map:renderMap, check:renderCheck, recipe:renderRecipes};
+  (map[tab] || (()=>{}))();
+}
+
+// ═══════════════════════════════════
+// UTILS
+// ═══════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtTime(ts) { const d=new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fmtDayKey(ts) { const d=new Date(ts); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; }
+function fmtDayFull(ts) {
+  const d=new Date(ts);
+  return `${ ['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'][d.getDay()] } ${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}`;
+}
+function setEl(id,v) { const e=document.getElementById(id); if(e) e.value=v||''; }
+function getEl(id)   { return (document.getElementById(id)||{}).value||''; }
+function scr(html)   { document.getElementById('screen').innerHTML = html; }
+function openModal(id)  { const e=document.getElementById(id); if(e) e.classList.remove('hidden'); }
+function closeModal(id) { const e=document.getElementById(id); if(e) e.classList.add('hidden'); }
+
+// Close modals on overlay tap
+document.querySelectorAll('.modal-overlay').forEach(o =>
+  o.addEventListener('click', e => { if(e.target===o) o.classList.add('hidden'); })
+);
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+let _tt;
+function toast(msg) {
+  const e=document.getElementById('toast');
+  e.textContent=msg; e.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>e.classList.remove('show'),2200);
+}
+
+// ═══════════════════════════════════
+// STATS
+// ═══════════════════════════════════
+async function renderStats() {
+  if (!trip) return;
+  rmFab();
+  const [s, ctrs] = await Promise.all([
+    dbGet('stats', trip.id).then(s=>s||{tripId:trip.id,steps:0,km:0,budget:800,spent:0,bestCafe:{val:0,note:''}}),
+    dbGetAll('counters','tripId',trip.id)
+  ]);
+
+  const cafe = s.bestCafe||{};
+  scr(`
+    <div class="sec-hd">Telemetrie výpravy</div>
+    <div class="stat-grid">
+      <div class="stat-card" onclick="openStat('steps','Kroků dnes','number')">
+        <div class="stat-lbl">Kroků dnes</div>
+        <div class="stat-val">${s.steps>0?s.steps.toLocaleString('cs'):'—'}</div>
+        <div class="stat-sub">klepni pro úpravu</div>
+      </div>
+      <div class="stat-card" onclick="openStat('km','Celkem km','decimal')">
+        <div class="stat-lbl">Celkem km</div>
+        <div class="stat-val">${s.km>0?s.km.toFixed(1)+' km':'— km'}</div>
+        <div class="stat-sub">za celou cestu</div>
+      </div>
+      <div class="stat-card" onclick="openStatPair('spent','budget','Utraceno','Budget')">
+        <div class="stat-lbl">Utraceno</div>
+        <div class="stat-val">${s.spent>0?s.spent.toFixed(0)+' €':'— €'}</div>
+        <div class="stat-sub">${s.budget>0?'z '+s.budget+' € budget':'nastav budget'}</div>
+      </div>
+      <div class="stat-card" onclick="openStatPair('bestCafe','','Nejdražší káva','Kde')">
+        <div class="stat-lbl">Nejdražší káva</div>
+        <div class="stat-val">${cafe.val>0?cafe.val.toFixed(2)+' €':'— €'}</div>
+        <div class="stat-sub">${cafe.note||'nastav rekord'}</div>
+      </div>
+    </div>
+    <div class="sec-hd" style="margin-top:4px">Čítače — terén</div>
+    <div id="ctr-list">${ctrs.map(c=>`
+      <div class="counter-row">
+        <span class="counter-emoji">${c.emoji}</span>
+        <span class="counter-name" onclick="openEditCounter(${c.id})">${esc(c.name)}</span>
+        <button class="cnt-btn" onclick="adjCounter(${c.id},-1)">−</button>
+        <span class="counter-val" id="cv-${c.id}">${c.value}</span>
+        <button class="cnt-btn" onclick="adjCounter(${c.id},+1)">+</button>
+      </div>`).join('')}
+    </div>
+    <button class="add-dashed" onclick="openNewCounter()">+ přidat čítač</button>
+  `);
+}
+
+// Counters
+let _ctrId=null, _ctrEmoji='🐱';
+const EMOJIS=['🐱','🥐','⛪','🍕','☕','🍦','🎨','🏛','🚶','🌊','🦅','🐟','🌺','🍷','🎭','🐢','⛵','🏖','🌙','📸','🎵','🦋','🎪','🧀'];
+
+async function adjCounter(id, delta) {
+  const c=await dbGet('counters',id); if(!c) return;
+  c.value=Math.max(0,(c.value||0)+delta);
+  c._upd=Date.now();
+  await dbPut('counters',c);
+  const e=document.getElementById('cv-'+id);
+  if(e){e.textContent=c.value;e.style.transform='scale(1.3)';setTimeout(()=>e.style.transform='',150);}
+  fbPushAll();
+}
+
+function openNewCounter() {
+  _ctrId=null; _ctrEmoji='🐱';
+  document.getElementById('mc-ttl').textContent='Nový čítač';
+  setEl('mc-name',''); setEl('mc-val',0);
+  document.getElementById('mc-del').classList.add('hidden');
+  buildEmojiPicker(); openModal('m-counter');
+  setTimeout(()=>document.getElementById('mc-name').focus(),300);
+}
+async function openEditCounter(id) {
+  const c=await dbGet('counters',id); if(!c) return;
+  _ctrId=id; _ctrEmoji=c.emoji;
+  document.getElementById('mc-ttl').textContent='Upravit čítač';
+  setEl('mc-name',c.name); setEl('mc-val',c.value);
+  document.getElementById('mc-del').classList.remove('hidden');
+  buildEmojiPicker(); openModal('m-counter');
+}
+function buildEmojiPicker() {
+  document.getElementById('mc-emojis').innerHTML = EMOJIS.map(e=>
+    `<div class="emoji-opt${e===_ctrEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`
+  ).join('');
+}
+function pickEmoji(e) {
+  _ctrEmoji=e;
+  document.querySelectorAll('.emoji-opt').forEach(el=>el.classList.toggle('on',el.textContent===e));
+}
+async function saveCounter() {
+  const name=getEl('mc-name').trim(); if(!name){toast('Zadej název');return;}
+  const obj={tripId:trip.id,emoji:_ctrEmoji,name,value:parseInt(getEl('mc-val'))||0};
+  if(_ctrId) obj.id=_ctrId;
+  await dbPut('counters',obj); closeModal('m-counter');
+  toast(_ctrId?'Čítač upraven':'Čítač přidán ✦'); renderStats(); fbPushAll();
+}
+async function deleteCounter() {
+  if(!_ctrId) return;
+  await dbDelete('counters',_ctrId); closeModal('m-counter');
+  toast('Čítač smazán'); renderStats(); fbPushAll();
+}
+
+// Stat edit
+let _statMode=null;
+function openStat(key, label, inputMode) {
+  _statMode={key, subKey:null};
+  document.getElementById('ms-ttl').textContent=label;
+  document.getElementById('ms-lbl').textContent=label;
+  document.getElementById('ms-val').inputMode=inputMode;
+  document.getElementById('ms-sub-row').classList.add('hidden');
+  dbGet('stats',trip.id).then(s=>{
+    const v=(s||{})[key]||0;
+    setEl('ms-val', typeof v==='object'?v.val||'':v||'');
+    openModal('m-stat');
+    setTimeout(()=>document.getElementById('ms-val').focus(),300);
+  });
+}
+function openStatPair(key, subKey, label, subLabel) {
+  _statMode={key, subKey};
+  document.getElementById('ms-ttl').textContent=label;
+  document.getElementById('ms-lbl').textContent=label+' (€)';
+  document.getElementById('ms-val').inputMode='decimal';
+  const subRow=document.getElementById('ms-sub-row');
+  subRow.classList.remove('hidden');
+  document.getElementById('ms-sub-lbl').textContent=subLabel;
+  dbGet('stats',trip.id).then(s=>{
+    const st=s||{};
+    if(key==='bestCafe') { setEl('ms-val',(st.bestCafe||{}).val||''); setEl('ms-sub',(st.bestCafe||{}).note||''); }
+    else { setEl('ms-val',st.spent||''); setEl('ms-sub',st.budget||''); }
+    openModal('m-stat');
+    setTimeout(()=>document.getElementById('ms-val').focus(),300);
+  });
+}
+async function saveStat() {
+  const {key,subKey}=_statMode;
+  let s=await dbGet('stats',trip.id)||{tripId:trip.id,steps:0,km:0,budget:800,spent:0,bestCafe:{val:0,note:''}};
+  const num=parseFloat(getEl('ms-val'))||0;
+  const sub=getEl('ms-sub').trim();
+  if(key==='bestCafe') s.bestCafe={val:num,note:sub};
+  else if(key==='spent') { s.spent=num; if(sub) s.budget=parseFloat(sub)||s.budget; }
+  else s[key]=num;
+  await dbPut('stats',s); closeModal('m-stat'); toast('Uloženo ✦'); renderStats(); fbPushAll();
+}
+
+// ═══════════════════════════════════
+// DIARY
+// ═══════════════════════════════════
+let _dId=null, _dMood='good', _dTags=new Set();
+
+async function renderDiary() {
+  if (!trip) return; rmFab();
+  const entries=(await dbGetAll('diary','tripId',trip.id)).sort((a,b)=>b.ts-a.ts);
+  if (!entries.length) {
+    scr(`<div class="placeholder"><div class="placeholder-icon">✍</div><div class="placeholder-text">Zatím žádné záznamy</div><div class="placeholder-sub">klepni ✍ pro první zápis</div></div>`);
+  } else {
+    const groups={}, order=[];
+    for(const e of entries){
+      const k=fmtDayKey(e.ts);
+      if(!groups[k]){groups[k]={label:fmtDayFull(e.ts),entries:[]};order.push(k);}
+      groups[k].entries.push(e);
+    }
+    let html='';
+    for(const k of order){
+      const g=groups[k];
+      html+=`<div class="day-hd">${g.label}<span style="font-size:8px;color:var(--border)">${g.entries.length}</span></div>`;
+      html+=g.entries.map(diaryCard).join('');
+    }
+    scr(html);
+  }
+  addFab('✍', ()=>openNewDiary(), 'Nový záznam');
+}
+
+function diaryCard(e) {
+  const needs = e.text.length > 120;
+  const tags=(e.tags||[]).map(t=>`<span class="diary-tag dtag-${t}">${{loc:'📍 místo',food:'🍽 jídlo',wild:'🐾 příroda',note:'💡 tip'}[t]||t}</span>`).join('');
+  return `<div class="diary-card mood-${e.mood||'good'}" id="dc-${e.id}" onclick="diaryTap(${e.id})">
+    <div class="diary-meta"><span class="diary-time">${fmtTime(e.ts)}</span><span>${{great:'😄',good:'🙂',meh:'😐'}[e.mood||'good']}</span></div>
+    ${e.loc?`<div class="diary-loc">📍 ${esc(e.loc)}</div>`:''}
+    <div class="diary-body">${esc(e.text)}</div>
+    ${needs?`<div class="diary-hint">číst dál…</div>`:''}
+    ${tags?`<div class="diary-tags">${tags}</div>`:''}
+  </div>`;
+}
+
+function diaryTap(id) {
+  const el=document.getElementById('dc-'+id);
+  if(!el) return;
+  if(el.classList.contains('open')) { openEditDiary(id); return; }
+  el.classList.add('open');
+  el.querySelector('.diary-hint') && (el.querySelector('.diary-hint').textContent='✎ klepni pro úpravu');
+}
+
+function openNewDiary() {
+  _dId=null; _dMood='good'; _dTags=new Set();
+  document.getElementById('md-ttl').textContent='Nový záznam';
+  setEl('md-text',''); setEl('md-loc','');
+  document.getElementById('md-del').classList.add('hidden');
+  refreshMood(); refreshTags(); openModal('m-diary');
+  setTimeout(()=>document.getElementById('md-text').focus(),300);
+}
+async function openEditDiary(id) {
+  const e=await dbGet('diary',id); if(!e) return;
+  _dId=id; _dMood=e.mood||'good'; _dTags=new Set(e.tags||[]);
+  document.getElementById('md-ttl').textContent='Upravit záznam';
+  setEl('md-text',e.text); setEl('md-loc',e.loc||'');
+  document.getElementById('md-del').classList.remove('hidden');
+  refreshMood(); refreshTags(); openModal('m-diary');
+}
+function setMood(btn) { _dMood=btn.dataset.m; refreshMood(); }
+function toggleTag(btn) { const t=btn.dataset.t; _dTags.has(t)?(_dTags.delete(t),btn.classList.remove('on')):(_dTags.add(t),btn.classList.add('on')); }
+function refreshMood() { document.querySelectorAll('#md-mood .mood-btn').forEach(b=>b.classList.toggle('on',b.dataset.m===_dMood)); }
+function refreshTags() { document.querySelectorAll('#md-tags .tag-toggle').forEach(b=>b.classList.toggle('on',_dTags.has(b.dataset.t))); }
+
+async function saveDiary() {
+  const text=getEl('md-text').trim(); if(!text){toast('Napiš něco…');return;}
+  let ts=Date.now();
+  if(_dId){const o=await dbGet('diary',_dId); if(o) ts=o.ts;}
+  const obj={tripId:trip.id,text,loc:getEl('md-loc').trim(),tags:Array.from(_dTags),mood:_dMood,ts};
+  if(_dId) obj.id=_dId;
+  await dbPut('diary',obj); closeModal('m-diary');
+  toast(_dId?'Záznam upraven ✦':'Zapsáno ✦'); renderDiary(); fbPushAll();
+}
+async function deleteDiary() {
+  if(!_dId) return;
+  await dbDelete('diary',_dId); closeModal('m-diary'); toast('Smazáno'); renderDiary(); fbPushAll();
+}
+
+// ═══════════════════════════════════
+// ITIN
+// ═══════════════════════════════════
+let _iId=null, _iCat='sight';
+const ICAT={sight:'🏛 památka',food:'🍽 jídlo',move:'🚶 přesun',sleep:'🛏 ubytování',other:'✦ ostatní'};
+
+function dayList(from, to) {
+  const days=[]; const c=new Date(from+'T12:00:00'), e=new Date(to+'T12:00:00');
+  while(c<=e){days.push(c.toISOString().slice(0,10));c.setDate(c.getDate()+1);}
+  return days;
+}
+
+async function renderItin() {
+  if (!trip) return; rmFab();
+  if (!itinDay) {
+    const today=new Date().toISOString().slice(0,10);
+    itinDay=(today>=trip.dateFrom&&today<=trip.dateTo)?today:trip.dateFrom;
+  }
+  const days=dayList(trip.dateFrom,trip.dateTo);
+  const idx=days.indexOf(itinDay); const hasPrev=idx>0, hasNext=idx<days.length-1;
+  const all=await dbGetAll('itin','tripId',trip.id);
+  const items=all.filter(i=>i.day===itinDay).sort((a,b)=>a.time<b.time?-1:a.time>b.time?1:(a.order||0)-(b.order||0));
+  const done=items.filter(i=>i.done).length, total=items.length, pct=total?Math.round(done/total*100):0;
+  const lbl=fmtDayFull(new Date(itinDay+'T12:00:00').getTime());
+
+  let html=`
+    <div class="sec-hd">Plán výpravy</div>
+    <div class="day-nav">
+      <button class="day-nav-btn" onclick="navDay(-1)"${hasPrev?'':' disabled'}>‹</button>
+      <div class="day-nav-lbl">${lbl}<span class="day-nav-sub">den ${idx+1} z ${days.length} · ${done}/${total} hotovo</span></div>
+      <button class="day-nav-btn" onclick="navDay(+1)"${hasNext?'':' disabled'}>›</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+
+  if(!items.length) {
+    html+=`<div style="text-align:center;padding:40px 0;font-family:'Caveat',cursive;font-size:16px;color:var(--ink3)"><span style="font-size:36px;display:block;margin-bottom:8px">🗓</span>Den zatím prázdný<br><span style="font-size:13px">klepni + pro přidání</span></div>`;
+  } else {
+    html+=`<div>`;
+    for(const item of items) {
+      const cl=ICAT[item.cat]||''; const done=item.done;
+      html+=`<div class="itin-item">
+        <div class="itin-dot-col"><div class="itin-dot${done?' done':''}"></div></div>
+        <div class="itin-card${done?' done':''}" onclick="openEditItin(${item.id})">
+          <div class="itin-time-row">
+            <span class="itin-time">${item.time||'—:——'}</span>
+            <span class="itin-chk" onclick="toggleItinDone(${item.id},event)">${done?'✓':'○'}</span>
+          </div>
+          <div class="itin-name">${esc(item.name)}</div>
+          ${item.note?`<div class="itin-note">${esc(item.note)}</div>`:''}
+          ${item.cat?`<span class="itin-badge icat-${item.cat}">${cl}</span>`:''}
+        </div>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+  scr(html);
+  addFab('+', ()=>openNewItin(), 'Přidat zastávku');
+}
+
+function navDay(d) {
+  const days=dayList(trip.dateFrom,trip.dateTo), idx=days.indexOf(itinDay)+d;
+  if(idx>=0&&idx<days.length){itinDay=days[idx];renderItin();}
+}
+async function toggleItinDone(id,evt) {
+  evt.stopPropagation();
+  const i=await dbGet('itin',id); if(!i) return;
+  i.done=!i.done; await dbPut('itin',i); renderItin(); fbPushAll();
+}
+
+function openNewItin() {
+  _iId=null; _iCat='sight';
+  document.getElementById('mi-ttl').textContent='Nová zastávka';
+  const n=new Date(); n.setMinutes(n.getMinutes()<30?0:30,0,0);
+  setEl('mi-time',`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`);
+  setEl('mi-name',''); setEl('mi-note','');
+  document.getElementById('mi-del').classList.add('hidden');
+  refreshItinCats(); openModal('m-itin');
+  setTimeout(()=>document.getElementById('mi-name').focus(),300);
+}
+async function openEditItin(id) {
+  const i=await dbGet('itin',id); if(!i) return;
+  _iId=id; _iCat=i.cat||'other';
+  document.getElementById('mi-ttl').textContent='Upravit zastávku';
+  setEl('mi-time',i.time); setEl('mi-name',i.name); setEl('mi-note',i.note||'');
+  document.getElementById('mi-del').classList.remove('hidden');
+  refreshItinCats(); openModal('m-itin');
+}
+function selItinCat(btn) { _iCat=btn.dataset.c; refreshItinCats(); }
+function refreshItinCats() { document.querySelectorAll('#mi-cats .tag-toggle').forEach(b=>b.classList.toggle('on',b.dataset.c===_iCat)); }
+async function saveItin() {
+  const name=getEl('mi-name').trim(); if(!name){toast('Zadej název');return;}
+  const obj={tripId:trip.id,day:itinDay,time:getEl('mi-time'),name,note:getEl('mi-note').trim(),cat:_iCat,done:false,order:Date.now()};
+  if(_iId){const o=await dbGet('itin',_iId); obj.done=o?o.done:false; obj.order=o?o.order:Date.now(); obj.id=_iId;}
+  await dbPut('itin',obj); closeModal('m-itin');
+  toast(_iId?'Zastávka upravena ✦':'Přidáno ✦'); renderItin(); fbPushAll();
+}
+async function deleteItin() {
+  if(!_iId) return;
+  await dbDelete('itin',_iId); closeModal('m-itin'); toast('Smazáno'); renderItin(); fbPushAll();
+}
+
+// ═══════════════════════════════════
+// MAP / PLACES
+// ═══════════════════════════════════
+const PCATS={sight:{l:'🏛 Památky',c:'pcat-sight'},cafe:{l:'☕ Kavárny',c:'pcat-cafe'},food:{l:'🍝 Jídlo',c:'pcat-food'},bakery:{l:'🥐 Pekárny',c:'pcat-bakery'},other:{l:'✦ Ostatní',c:'pcat-other'}};
+const PICONS={sight:'🏛',cafe:'☕',food:'🍝',bakery:'🥐',other:'📍'};
+
+async function renderMap() {
+  if(!trip) return; rmFab();
+  const all=await dbGetAll('places','tripId',trip.id);
+  const visible=_mapFilter==='all'?all:all.filter(p=>p.cat===_mapFilter);
+  const counts={};for(const p of all) counts[p.cat]=(counts[p.cat]||0)+1;
+
+  let filters=`<div class="filter-row"><button class="filter-btn${_mapFilter==='all'?' on':''}" onclick="setMapF('all')">Vše (${all.length})</button>`;
+  for(const [cat,info] of Object.entries(PCATS)){if((counts[cat]||0)>0||_mapFilter===cat) filters+=`<button class="filter-btn${_mapFilter===cat?' on':''}" onclick="setMapF('${cat}')">${info.l} (${counts[cat]||0})</button>`;}
+  filters+=`</div>`;
+
+  const W=290,H=140;
+  const slots=[[48,35],[148,28],[238,42],[70,98],[162,108],[228,92]];
+  let pins='';
+  visible.forEach((p,i)=>{
+    const [cx,cy]=slots[i%slots.length], col=p.visited?'#5c8a3c':'#c0392b';
+    const nm=esc(p.name.length>12?p.name.slice(0,11)+'…':p.name);
+    pins+=`<circle cx="${cx}" cy="${cy}" r="9" fill="${col}" opacity=".15"/>
+      <circle cx="${cx}" cy="${cy}" r="5" fill="${col}"/>
+      <text x="${cx}" y="${cy+3.5}" text-anchor="middle" font-size="6" fill="white" font-family="serif">${p.visited?'✓':'○'}</text>
+      <rect x="${cx-28}" y="${cy-24}" width="56" height="13" rx="2" fill="rgba(255,248,220,.93)" stroke="#c4a46a" stroke-width=".7"/>
+      <text x="${cx}" y="${cy-14}" text-anchor="middle" font-size="7.5" fill="#2c1a0a" font-family="serif">${nm}</text>`;
+  });
+
+  const mapSVG=`<div class="map-wrap"><svg viewBox="0 0 ${W} ${H}">
+    <rect width="${W}" height="${H}" fill="#ede0b8"/>
+    <path d="M0,55 Q80,48 160,60 Q220,68 ${W},52" stroke="#c4a46a" stroke-width="2" fill="none" opacity=".5"/>
+    <path d="M0,100 Q70,95 140,105 Q200,112 ${W},98" stroke="#c4a46a" stroke-width="1.5" fill="none" opacity=".4"/>
+    <path d="M60,0 Q58,45 62,${H}" stroke="#c4a46a" stroke-width="1.5" fill="none" opacity=".35"/>
+    <path d="M150,0 Q148,50 152,${H}" stroke="#c4a46a" stroke-width="1.5" fill="none" opacity=".35"/>
+    <rect x="10" y="10" width="40" height="28" rx="2" fill="#d4c8a0" stroke="#b8a060" stroke-width=".5" opacity=".6"/>
+    <rect x="75" y="8" width="65" height="30" rx="2" fill="#d4c8a0" stroke="#b8a060" stroke-width=".5" opacity=".6"/>
+    <rect x="165" y="12" width="55" height="26" rx="2" fill="#d4c8a0" stroke="#b8a060" stroke-width=".5" opacity=".6"/>
+    <rect x="10" y="68" width="42" height="32" rx="2" fill="#d4c8a0" stroke="#b8a060" stroke-width=".5" opacity=".6"/>
+    <rect x="75" y="72" width="65" height="28" rx="2" fill="#d4c8a0" stroke="#b8a060" stroke-width=".5" opacity=".6"/>
+    <rect x="165" y="65" width="55" height="30" rx="2" fill="#d4c8a0" stroke="#b8a060" stroke-width=".5" opacity=".6"/>
+    <circle cx="8" cy="${H-8}" r="4" fill="#5c8a3c" opacity=".7"/>
+    <text x="15" y="${H-4}" font-size="7" fill="#5c8a3c" font-family="serif">navštíveno</text>
+    <circle cx="80" cy="${H-8}" r="4" fill="#c0392b" opacity=".7"/>
+    <text x="87" y="${H-4}" font-size="7" fill="#c0392b" font-family="serif">plánuji</text>
+    <text x="270" y="${H-4}" font-size="7" fill="#8b7040" font-family="serif" opacity=".5">N↑</text>
+    ${pins}
+  </svg></div>`;
+
+  const visited=visible.filter(p=>p.visited), wish=visible.filter(p=>!p.visited);
+  let cards='';
+  if(!visible.length) cards=`<div class="placeholder" style="min-height:160px"><div class="placeholder-icon">🗺</div><div class="placeholder-text">Žádná místa v kategorii</div></div>`;
+  else {
+    if(visited.length) cards+=`<div class="sec-hd" style="margin-bottom:8px">Navštíveno</div><div class="places-list">${visited.map(placeCard).join('')}</div>`;
+    if(wish.length) cards+=`<div class="sec-hd" style="margin:${visited.length?14:0}px 0 8px">Chci navštívit</div><div class="places-list">${wish.map(placeCard).join('')}</div>`;
+  }
+  scr(`<div class="sec-hd">Místa výpravy</div>${filters}${mapSVG}${cards}`);
+  addFab('+', ()=>openNewPlace(), 'Přidat místo');
+}
+
+function setMapF(cat) { _mapFilter=cat; renderMap(); }
+function placeCard(p) {
+  const ci=PCATS[p.cat]||PCATS.other;
+  const stars='★'.repeat(p.rating||0)+'☆'.repeat(5-(p.rating||0));
+  return `<div class="place-card${p.visited?' visited':''}" onclick="openEditPlace(${p.id})">
+    <div class="place-ico">${p.icon||PICONS[p.cat]||'📍'}</div>
+    <div class="place-body">
+      <div class="place-name">${esc(p.name)}</div>
+      ${p.addr?`<div class="place-addr">📍 ${esc(p.addr)}</div>`:''}
+      ${p.note?`<div class="place-note">${esc(p.note)}</div>`:''}
+      <div class="place-footer"><span class="place-stars">${stars}</span><span class="place-badge ${ci.c}">${ci.l}</span></div>
+    </div>
+  </div>`;
+}
+
+function openNewPlace() {
+  _pId=null; _pCat='sight'; _pRating=0; _pVis=false;
+  document.getElementById('mp-ttl').textContent='Nové místo';
+  setEl('mp-name',''); setEl('mp-addr',''); setEl('mp-note','');
+  document.getElementById('mp-del').classList.add('hidden');
+  refreshPCats(); refreshPRating(); refreshPVis(); openModal('m-place');
+  setTimeout(()=>document.getElementById('mp-name').focus(),300);
+}
+async function openEditPlace(id) {
+  const p=await dbGet('places',id); if(!p) return;
+  _pId=id; _pCat=p.cat||'other'; _pRating=p.rating||0; _pVis=p.visited||false;
+  document.getElementById('mp-ttl').textContent='Upravit místo';
+  setEl('mp-name',p.name); setEl('mp-addr',p.addr||''); setEl('mp-note',p.note||'');
+  document.getElementById('mp-del').classList.remove('hidden');
+  refreshPCats(); refreshPRating(); refreshPVis(); openModal('m-place');
+}
+function selPlaceCat(btn) { _pCat=btn.dataset.c; refreshPCats(); }
+function setPlaceRating(r) { _pRating=r; refreshPRating(); }
+function setPlaceVis(v) { _pVis=v; refreshPVis(); }
+function refreshPCats() { document.querySelectorAll('#mp-cats .tag-toggle').forEach(b=>b.classList.toggle('on',b.dataset.c===_pCat)); }
+function refreshPRating() { document.querySelectorAll('#mp-stars .rating-star').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.r)<=_pRating)); }
+function refreshPVis() { document.getElementById('mp-vis-y').classList.toggle('on',_pVis); document.getElementById('mp-vis-n').classList.toggle('on',!_pVis); }
+async function savePlace() {
+  const name=getEl('mp-name').trim(); if(!name){toast('Zadej název místa');return;}
+  const obj={tripId:trip.id,name,addr:getEl('mp-addr').trim(),note:getEl('mp-note').trim(),cat:_pCat,icon:PICONS[_pCat]||'📍',rating:_pRating,visited:_pVis};
+  if(_pId) obj.id=_pId;
+  await dbPut('places',obj); closeModal('m-place');
+  toast(_pId?'Místo upraveno ✦':'Místo přidáno ✦'); renderMap(); fbPushAll();
+}
+async function deletePlace() {
+  if(!_pId) return;
+  await dbDelete('places',_pId); closeModal('m-place'); toast('Smazáno'); renderMap(); fbPushAll();
+}
+
+// ═══════════════════════════════════
+// CHECK LISTS
+// ═══════════════════════════════════
+let _chId=null;
+
+async function renderCheck() {
+  if(!trip) return; rmFab();
+  const all=await dbGetAll('check','tripId',trip.id);
+  const items=all.filter(i=>i.list===checkList).sort((a,b)=>(a.order||0)-(b.order||0));
+  const done=items.filter(i=>i.done).length;
+  const pct=items.length?Math.round(done/items.length*100):0;
+
+  scr(`
+    <div class="sec-hd">Check listy</div>
+    <div class="check-tabs">
+      <button class="check-tab${checkList==='packing'?' on':''}" onclick="switchCheckList('packing')">🧳 Balení</button>
+      <button class="check-tab${checkList==='bucket'?' on':''}"  onclick="switchCheckList('bucket')">🗺 Cíle cesty</button>
+    </div>
+    <div class="progress-bar" style="margin-bottom:12px"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="check-list">
+      ${items.map(i=>`
+        <div class="check-item" onclick="toggleCheck(${i.id})">
+          <div class="check-box${i.done?' done':''}">${i.done?'<svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" stroke-width="2"/></svg>':''}</div>
+          <div style="flex:1">
+            <div class="check-text${i.done?' done':''}">${esc(i.name)}</div>
+            ${i.note?`<div class="check-note">${esc(i.note)}</div>`:''}
+          </div>
+          <span style="font-size:12px;color:var(--ink3);padding:2px 4px" onclick="openEditCheck(${i.id},event)">✎</span>
+        </div>`).join('')}
+    </div>
+    <button class="add-dashed" onclick="openNewCheck()">+ přidat položku</button>
+  `);
+  addFab('+', ()=>openNewCheck(), 'Přidat položku');
+}
+
+function switchCheckList(list) { checkList=list; renderCheck(); }
+async function toggleCheck(id) {
+  const i=await dbGet('check',id); if(!i) return;
+  i.done=!i.done; await dbPut('check',i); renderCheck(); fbPushAll();
+}
+
+function openNewCheck() {
+  _chId=null;
+  document.getElementById('mch-ttl').textContent='Nová položka';
+  setEl('mch-name',''); setEl('mch-note','');
+  openModal('m-check');
+  setTimeout(()=>document.getElementById('mch-name').focus(),300);
+}
+async function openEditCheck(id,evt) {
+  evt.stopPropagation();
+  const i=await dbGet('check',id); if(!i) return;
+  _chId=id;
+  document.getElementById('mch-ttl').textContent='Upravit položku';
+  setEl('mch-name',i.name); setEl('mch-note',i.note||'');
+  openModal('m-check');
+}
+async function saveCheck() {
+  const name=getEl('mch-name').trim(); if(!name){toast('Zadej název');return;}
+  const obj={tripId:trip.id,list:checkList,name,note:getEl('mch-note').trim(),done:false,order:Date.now()};
+  if(_chId){const o=await dbGet('check',_chId); obj.done=o?o.done:false; obj.order=o?o.order:Date.now(); obj.id=_chId;}
+  await dbPut('check',obj); closeModal('m-check');
+  toast(_chId?'Upraveno ✦':'Přidáno ✦'); renderCheck(); fbPushAll();
+}
+async function deleteCheck() {
+  if(!_chId) return;
+  await dbDelete('check',_chId); closeModal('m-check'); toast('Smazáno'); renderCheck(); fbPushAll();
+}
+
+// ═══════════════════════════════════
+// RECIPES
+// ═══════════════════════════════════
+let _rId=null;
+
+async function renderRecipes() {
+  if(!trip) return; rmFab();
+  const recipes=(await dbGetAll('recipes','tripId',trip.id)).sort((a,b)=>b.ts-a.ts);
+  if(!recipes.length) {
+    scr(`<div class="placeholder"><div class="placeholder-icon">🍽</div><div class="placeholder-text">Zatím žádné recepty</div><div class="placeholder-sub">klepni + pro první zápis</div></div>`);
+  } else {
+    scr(`<div class="sec-hd">Recepty z terénu <span style="font-size:8px;color:var(--border)">${recipes.length}</span></div>${recipes.map(recipeCard).join('')}`);
+  }
+  addFab('+', ()=>openNewRecipe(), 'Nový recept');
+}
+
+function recipeCard(r) {
+  const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${esc(t)}</span>`).join('');
+  return `<div class="recipe-card" onclick="openEditRecipe(${r.id})">
+    <div class="recipe-title">${esc(r.title)}</div>
+    ${r.source?`<div class="recipe-src">// ${esc(r.source)}</div>`:''}
+    ${r.ingredients?`<div class="recipe-slbl">Suroviny</div><div class="recipe-text">${esc(r.ingredients)}</div>`:''}
+    ${r.steps?`<hr class="recipe-divider"><div class="recipe-slbl">Postup</div><div class="recipe-text">${esc(r.steps)}</div>`:''}
+    ${tags?`<div class="recipe-tags">${tags}</div>`:''}
+  </div>`;
+}
+
+function openNewRecipe() {
+  _rId=null;
+  document.getElementById('mr-ttl').textContent='Nový recept';
+  ['mr-name','mr-src','mr-ing','mr-steps','mr-tags'].forEach(id=>setEl(id,''));
+  document.getElementById('mr-del').classList.add('hidden');
+  openModal('m-recipe');
+  setTimeout(()=>document.getElementById('mr-name').focus(),300);
+}
+async function openEditRecipe(id) {
+  const r=await dbGet('recipes',id); if(!r) return;
+  _rId=id;
+  document.getElementById('mr-ttl').textContent='Upravit recept';
+  setEl('mr-name',r.title); setEl('mr-src',r.source||''); setEl('mr-ing',r.ingredients||'');
+  setEl('mr-steps',r.steps||''); setEl('mr-tags',(r.tags||[]).join(', '));
+  document.getElementById('mr-del').classList.remove('hidden');
+  openModal('m-recipe');
+}
+async function saveRecipe() {
+  const title=getEl('mr-name').trim(); if(!title){toast('Zadej název receptu');return;}
+  const tags=getEl('mr-tags').split(',').map(t=>t.trim()).filter(Boolean);
+  const obj={tripId:trip.id,title,source:getEl('mr-src').trim(),ingredients:getEl('mr-ing').trim(),steps:getEl('mr-steps').trim(),tags,ts:Date.now()};
+  if(_rId){const o=await dbGet('recipes',_rId); if(o) obj.ts=o.ts; obj.id=_rId;}
+  await dbPut('recipes',obj); closeModal('m-recipe');
+  toast(_rId?'Recept upraven ✦':'Recept přidán ✦'); renderRecipes(); fbPushAll();
+}
+async function deleteRecipe() {
+  if(!_rId) return;
+  await dbDelete('recipes',_rId); closeModal('m-recipe'); toast('Smazáno'); renderRecipes(); fbPushAll();
+}
+
+// ═══════════════════════════════════
+// TRIP MANAGEMENT
+// ═══════════════════════════════════
+async function openTripManager() {
+  const trips=await dbGetAll('trips');
+  document.getElementById('trip-list').innerHTML = trips.reverse().map(t=>`
+    <div class="trip-item${t.id===trip?.id?' cur':''}" onclick="switchTrip(${t.id})">
+      <div style="flex:1">
+        <div class="trip-name">${esc(t.name)}</div>
+        <div class="trip-dates">${fmt(t.dateFrom)} – ${fmt(t.dateTo)}</div>
+      </div>
+      ${t.id===trip?.id?`<span class="trip-cur-badge">aktivní</span>`:''}
+    </div>`).join('');
+  openModal('m-trips');
+}
+
+async function switchTrip(id) {
+  const t=await dbGet('trips',id); if(!t) return;
+  trip=t; itinDay=null; closeModal('m-trips');
+  updateHdr(); renderTab(curTab); toast(`Výprava: ${t.name}`);
+}
+
+async function createTrip() {
+  const name=getEl('nt-name').trim(); if(!name){toast('Zadej název');return;}
+  const from=getEl('nt-from'), to=getEl('nt-to');
+  const id=await dbPut('trips',{name,dateFrom:from,dateTo:to});
+  await dbPut('stats',{tripId:id,steps:0,km:0,budget:0,spent:0,bestCafe:{val:0,note:''}});
+  trip=await dbGet('trips',id); itinDay=null;
+  closeModal('m-newtrip'); updateHdr(); renderTab(curTab);
+  toast(`Výprava "${name}" vytvořena ✦`);
+}
+
+async function deleteTrip() {
+  if(!trip||!confirm(`Opravdu smazat výpravu "${trip.name}" a veškerá data?`)) return;
+  const id=trip.id;
+  for(const store of ['counters','diary','itin','places','check','recipes'])
+    for(const r of await dbGetAll(store,'tripId',id)) await dbDelete(store,r.id);
+  await dbDelete('stats',id); await dbDelete('trips',id);
+  closeModal('m-settings');
+  const trips=await dbGetAll('trips');
+  trip=trips.length?trips[trips.length-1]:null;
+  if(!trip) { await seed(); const t2=await dbGetAll('trips'); trip=t2[0]; }
+  itinDay=null; updateHdr(); renderTab(curTab); toast('Výprava smazána');
+}
+
+// ═══════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════
+async function exportTrip() {
+  if(!trip){toast('Žádná výprava');return;}
+  const id=trip.id;
+  const payload={
+    _v:1, exportedAt:new Date().toISOString(),
+    trip, stats:await dbGet('stats',id),
+    counters: await dbGetAll('counters','tripId',id),
+    diary:    await dbGetAll('diary','tripId',id),
+    itin:     await dbGetAll('itin','tripId',id),
+    places:   await dbGetAll('places','tripId',id),
+    check:    await dbGetAll('check','tripId',id),
+    recipes:  await dbGetAll('recipes','tripId',id),
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`exploredos_${trip.name.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Export stažen ✦');
+}
+
+async function importTrip(evt) {
+  const file=evt.target.files[0]; if(!file) return;
+  try {
+    const text=await file.text();
+    const data=JSON.parse(text);
+    if(!data.trip||!data._v){toast('Neplatný soubor');return;}
+    if(!confirm(`Importovat výpravu "${data.trip.name}"?\n\nPokud výprava se stejným názvem existuje, data budou přidána.`)) return;
+    await mergeImport(data);
+    toast('Import dokončen ✦');
+    const trips=await dbGetAll('trips'); trip=trips[trips.length-1];
+    updateHdr(); renderTab(curTab);
+  } catch(e) { toast('Chyba importu: '+e.message); console.error(e); }
+  evt.target.value='';
+}
+
+async function mergeImport(data) {
+  // Create new trip (strip old id so autoIncrement assigns new one)
+  const {id:_,...tripData}=data.trip;
+  const newTripId=await dbPut('trips', tripData);
+
+  const remap=async(store, items)=>{
+    for(const item of (items||[])){
+      const {id:_,...rest}=item;
+      await dbPut(store,{...rest, tripId:newTripId});
+    }
+  };
+  if(data.stats){const {tripId:_,...rest}=data.stats; await dbPut('stats',{...rest,tripId:newTripId});}
+  await remap('counters', data.counters);
+  await remap('diary',    data.diary);
+  await remap('itin',     data.itin);
+  await remap('places',   data.places);
+  await remap('check',    data.check);
+  await remap('recipes',  data.recipes);
+}
+
+// ═══════════════════════════════════
+// FIREBASE SYNC
+// ═══════════════════════════════════
+let fbApp=null, fbDB=null, fbRef=null, fbActive=false, fbListening=false;
+const FB_LS='eos_fb_cfg';
+
+function fbLoadCfg() { try{return JSON.parse(localStorage.getItem(FB_LS)||'{}')}catch{return{}} }
+function fbSaveCfg(c) { localStorage.setItem(FB_LS, JSON.stringify(c)); }
+
+function fbInit() {
+  const cfg=fbLoadCfg();
+  if(cfg.apiKey && cfg.dbUrl && cfg.tripKey) {
+    document.getElementById('fb-key').value   = cfg.apiKey;
+    document.getElementById('fb-url').value   = cfg.dbUrl;
+    document.getElementById('fb-trip').value  = cfg.tripKey;
+    fbDoConnect(cfg.apiKey, cfg.dbUrl, cfg.tripKey);
+  }
+}
+
+function fbSetStatus(state, detail='') {
+  const badge=document.getElementById('fb-badge'), txt=document.getElementById('fb-txt');
+  if(!badge) return;
+  const map={ok:{c:'fb-ok',l:'SYNC',t:'Live sync aktivní'},ing:{c:'fb-ing',l:'…',t:'Připojuji…'},err:{c:'fb-err',l:'ERR',t:detail||'Chyba'},off:{c:'fb-off',l:'OFF',t:'Nezapnuto'}};
+  const s=map[state]||map.off;
+  badge.className='fb-badge '+s.c; badge.textContent=s.l; if(txt) txt.textContent=s.t;
+}
+
+async function fbConnect() {
+  const key=getEl('fb-key').trim(), url=getEl('fb-url').trim(), tk=getEl('fb-trip').trim();
+  if(!key||!url||!tk){toast('Vyplň všechna Firebase pole');return;}
+  fbSaveCfg({apiKey:key,dbUrl:url,tripKey:tk});
+  await fbDoConnect(key,url,tk);
+}
+
+async function fbDoConnect(apiKey, dbUrl, tripKey) {
+  fbSetStatus('ing');
+  try {
+    if(!window.firebase){
+      await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+      await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js');
+    }
+    if(fbApp){try{fbApp.delete();}catch{}}
+    fbApp=window.firebase.initializeApp({apiKey,databaseURL:dbUrl},'eos_'+Date.now());
+    fbDB=window.firebase.database(fbApp);
+    fbRef=fbDB.ref('trips/'+tripKey);
+    // connectivity test
+    await fbRef.child('_ping').set(Date.now());
+    fbActive=true; fbSetStatus('ok'); toast('Firebase připojen ✦');
+    fbStartListener();
+  } catch(e) { fbSetStatus('err',e.message); toast('Firebase chyba'); console.error(e); }
+}
+
+function fbDisconnect() {
+  fbActive=false; fbListening=false;
+  if(fbRef){try{fbRef.off();}catch{}}
+  if(fbApp){try{fbApp.delete();}catch{}}
+  fbApp=fbDB=fbRef=null;
+  fbSaveCfg({});
+  ['fb-key','fb-url','fb-trip'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  fbSetStatus('off'); toast('Firebase odpojen');
+}
+
+async function fbPushAll() {
+  if(!fbRef||!fbActive||!trip) return;
+  try {
+    const id=trip.id, now=Date.now();
+    window._fbMyLastPush = now;
+    const stamp=arr=>arr.map(r=>({...r, _upd:r._upd||r.ts||r.order||now}));
+    await fbRef.set({
+      trip, stats:await dbGet('stats',id),
+      counters: stamp(await dbGetAll('counters','tripId',id)),
+      diary:    stamp(await dbGetAll('diary','tripId',id)),
+      itin:     stamp(await dbGetAll('itin','tripId',id)),
+      places:   stamp(await dbGetAll('places','tripId',id)),
+      check:    stamp(await dbGetAll('check','tripId',id)),
+      recipes:  stamp(await dbGetAll('recipes','tripId',id)),
+      _at:now, _by:navigator.userAgent.slice(0,40),
+    });
+  } catch(e) { console.warn('FB push:',e); }
+}
+
+function fbStartListener() {
+  if(!fbRef||fbListening) return;
+  fbListening=true;
+  // Record local push time so we ignore our own echoes
+  window._fbMyLastPush = window._fbMyLastPush || 0;
+  fbRef.on('value', async snap => {
+    const remote=snap.val();
+    if(!remote||!remote.trip||!remote._at) return;
+    // Skip if this is our own push (within 3s) or older than what we've seen
+    if(remote._at <= (window._fbLastPull||0)) return;
+    if(Math.abs(remote._at - window._fbMyLastPush) < 3000) return;
+    window._fbLastPull = remote._at;
+    await fbApplyRemote(remote);
+  }, e=>{ fbSetStatus('err',e.message); console.error('FB listener:',e); });
+}
+
+async function fbApplyRemote(remote) {
+  if(!trip) return;
+  const id=trip.id;
+
+  if(remote.stats) await dbPut('stats',{...remote.stats, tripId:id});
+
+  const mergeStore=async(store, items)=>{
+    if(!items?.length) return;
+    const existing=await dbGetAll(store,'tripId',id);
+    const byId=new Map(existing.map(r=>[r.id,r]));
+    for(const ri of items){
+      const local=byId.get(ri.id);
+      const rT=ri._upd||0, lT=(local?._upd)||0;
+      if(!local||rT>lT) await dbPut(store,{...ri,tripId:id});
+    }
+  };
+
+  await mergeStore('counters', remote.counters);
+  await mergeStore('diary',    remote.diary);
+  await mergeStore('itin',     remote.itin);
+  await mergeStore('places',   remote.places);
+  await mergeStore('check',    remote.check);
+  await mergeStore('recipes',  remote.recipes);
+
+  toast('Synchronizováno ✦');
+  renderTab(curTab); updateHdr();
+}
+
+function loadScript(src) {
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+
+// open trip manager on hd-trip tap
+document.getElementById('hd-trip').addEventListener('click', openTripManager);
+
+boot();
+</script>
+
+</body>
+</html>
