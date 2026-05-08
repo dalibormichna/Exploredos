@@ -1353,7 +1353,7 @@ async function createTrip() {
   const id=await dbPut('trips',{name,dateFrom:from,dateTo:to});
   await dbPut('stats',{tripId:id,steps:0,km:0,budget:0,spent:0,bestCafe:{val:0,note:''}});
   trip=await dbGet('trips',id); itinDay=null;
-  closeModal('m-newtrip'); updateHdr(); renderTab(curTab);
+  await fbPushAll(); closeModal('m-newtrip'); updateHdr(); renderTab(curTab);
   toast(`Výprava "${name}" vytvořena ✦`);
 }
 
@@ -1462,6 +1462,7 @@ async function fbConnect() {
   fbSaveCfg({apiKey:key,dbUrl:url,tripKey:tk});
   await fbDoConnect(key,url,tk);
 }
+  
 
 async function fbDoConnect(apiKey, dbUrl, tripKey) {
   fbSetStatus('ing');
@@ -1492,22 +1493,31 @@ function fbDisconnect() {
 }
 
 async function fbPushAll() {
-  if(!fbRef||!fbActive||!trip) return;
+  if (!fbRef || !fbActive || !trip) return;
   try {
-    const id=trip.id, now=Date.now();
+    const id = trip.id, now = Date.now();
     window._fbMyLastPush = now;
-    const stamp=arr=>arr.map(r=>({...r, _upd:r._upd||r.ts||r.order||now}));
+    const stamp = arr => arr.map(r => ({ ...r, _upd: r._upd || r.ts || r.order || now }));
+
+    // Načti VŠECHNY výpravy (ne jen aktuální)
+    const allTrips = await dbGetAll('trips');
+
     await fbRef.set({
-      trip, stats:await dbGet('stats',id),
-      counters: stamp(await dbGetAll('counters','tripId',id)),
-      diary:    stamp(await dbGetAll('diary','tripId',id)),
-      itin:     stamp(await dbGetAll('itin','tripId',id)),
-      places:   stamp(await dbGetAll('places','tripId',id)),
-      check:    stamp(await dbGetAll('check','tripId',id)),
-      recipes:  stamp(await dbGetAll('recipes','tripId',id)),
-      _at:now, _by:navigator.userAgent.slice(0,40),
+      // ↓ NOVÉ — celý seznam výprav
+      trips: allTrips.map(t => ({ ...t, _upd: t._upd || now })),
+
+      trip,   // aktuální výprava (pro zpětnou kompatibilitu)
+      stats:    await dbGet('stats', id),
+      counters: stamp(await dbGetAll('counters', 'tripId', id)),
+      diary:    stamp(await dbGetAll('diary',    'tripId', id)),
+      itin:     stamp(await dbGetAll('itin',     'tripId', id)),
+      places:   stamp(await dbGetAll('places',   'tripId', id)),
+      check:    stamp(await dbGetAll('check',    'tripId', id)),
+      recipes:  stamp(await dbGetAll('recipes',  'tripId', id)),
+      _at: now,
+      _by: navigator.userAgent.slice(0, 40),
     });
-  } catch(e) { console.warn('FB push:',e); }
+  } catch (e) { console.warn('FB push:', e); }
 }
 
 function fbStartListener() {
@@ -1527,19 +1537,40 @@ function fbStartListener() {
 }
 
 async function fbApplyRemote(remote) {
-  if(!trip) return;
-  const id=trip.id;
+  if (!trip) return;
+  const id = trip.id;
 
-  if(remote.stats) await dbPut('stats',{...remote.stats, tripId:id});
+  // ── Merge trips store (NOVÉ) ──────────────────
+  if (remote.trips?.length) {
+    const localTrips = await dbGetAll('trips');
+    const localById  = new Map(localTrips.map(t => [t.id, t]));
+    let addedNew = false;
 
-  const mergeStore=async(store, items)=>{
-    if(!items?.length) return;
-    const existing=await dbGetAll(store,'tripId',id);
-    const byId=new Map(existing.map(r=>[r.id,r]));
-    for(const ri of items){
-      const local=byId.get(ri.id);
-      const rT=ri._upd||0, lT=(local?._upd)||0;
-      if(!local||rT>lT) await dbPut(store,{...ri,tripId:id});
+    for (const rt of remote.trips) {
+      const local = localById.get(rt.id);
+      const rT = rt._upd || 0, lT = local?._upd || 0;
+      if (!local || rT > lT) {
+        await dbPut('trips', rt);
+        if (!local) addedNew = true;  // úplně nový trip
+      }
+    }
+
+    // Pokud přišel nový trip — aktualizuj header seznam výprav
+    if (addedNew) updateHdr();
+  }
+
+  // ── Stats ─────────────────────────────────────
+  if (remote.stats) await dbPut('stats', { ...remote.stats, tripId: id });
+
+  // ── Generický merge pro ostatní stores ────────
+  const mergeStore = async (store, items) => {
+    if (!items?.length) return;
+    const existing = await dbGetAll(store, 'tripId', id);
+    const byId     = new Map(existing.map(r => [r.id, r]));
+    for (const ri of items) {
+      const local = byId.get(ri.id);
+      const rT = ri._upd || 0, lT = local?._upd || 0;
+      if (!local || rT > lT) await dbPut(store, { ...ri, tripId: id });
     }
   };
 
@@ -1551,7 +1582,8 @@ async function fbApplyRemote(remote) {
   await mergeStore('recipes',  remote.recipes);
 
   toast('Synchronizováno ✦');
-  renderTab(curTab); updateHdr();
+  renderTab(curTab);
+  updateHdr();
 }
 
 function loadScript(src) {
