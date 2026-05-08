@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
@@ -13,8 +12,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#1a0e05;overscroll-behavior:none}
-body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:'Special Elite','Courier New',serif}
 :root{
   --paper:#f5e6c8;--paper2:#ede0b8;--paper3:#e4d4a0;
   --ink:#2c1a0a;--ink2:#6b4020;--ink3:#8b5e2a;
@@ -22,104 +19,193 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
   --border:#c4a46a;--border2:#a8884e;
   --gold:#f0c878;--gold2:#c4923a;
   --red:#c0392b;--green:#5c8a3c;--green2:#3d6028;
-  --lh:28px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
-  --app-w:min(430px,100vw)
+  --lh:28px;
+  --st:env(safe-area-inset-top,0px);
+  --sb:env(safe-area-inset-bottom,0px)
 }
 .hidden{display:none!important}
 
-/* ── APP ── */
-#app{width:var(–app-w);max-width:430px;height:100dvh;height:100vh;display:flex;flex-direction:column;background:var(–leather2);padding-top:var(–st);position:relative}
+/* ── ROOT ── */
+html{height:100%;background:#1a0e05}
+body{
+  min-height:100%;height:100%;
+  background:#1a0e05;
+  display:flex;justify-content:center;align-items:flex-start;
+  font-family:'Special Elite','Courier New',serif;
+  overscroll-behavior:none
+}
+
+/* ── APP SHELL — pevný sloupec uprostřed ── */
+#app{
+  width:100%;max-width:430px;
+  height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--paper);     /* papírové pozadí pro celý app */
+  position:relative;
+  overflow:hidden;             /* klíčové — nic nepřetéká ven */
+  padding-top:var(--st)
+}
 @supports (height:100dvh){#app{height:100dvh}}
 
 /* ── HEADER ── */
-#hdr{background:var(–leather);padding:10px 14px 8px;border-bottom:3px double var(–border);flex-shrink:0}
+#hdr{
+  background:var(--leather);
+  padding:10px 14px 8px;
+  border-bottom:3px double var(--border);
+  flex-shrink:0;
+  width:100%
+}
 .hd-top{display:flex;align-items:center;gap:8px}
 #hd-compass{width:24px;height:24px;flex-shrink:0}
-.hd-title{font-size:18px;color:var(–gold);letter-spacing:3px;text-transform:uppercase;flex:1}
-.hd-stamp{border:2px solid var(–red);color:var(–red);font-size:7px;font-weight:700;letter-spacing:2px;padding:1px 5px;border-radius:2px;transform:rotate(-8deg);display:inline-block;opacity:.85}
-.hd-gear{background:none;border:none;color:var(–gold2);font-size:16px;cursor:pointer;padding:2px 4px;margin-left:4px}
-#hd-trip{font-size:10px;color:var(–gold2);letter-spacing:1px;margin-top:3px;padding-left:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.hd-title{font-size:18px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;flex:1}
+.hd-stamp{border:2px solid var(--red);color:var(--red);font-size:7px;font-weight:700;letter-spacing:2px;padding:1px 5px;border-radius:2px;transform:rotate(-8deg);display:inline-block;opacity:.85}
+.hd-gear{background:none;border:none;color:var(--gold2);font-size:18px;cursor:pointer;padding:2px 6px;margin-left:2px;line-height:1}
+#hd-trip{font-size:10px;color:var(--gold2);letter-spacing:1px;margin-top:3px;padding-left:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 
 /* ── TABS ── */
-#tabs{display:flex;background:var(–paper2);border-bottom:2px solid var(–border2);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+#tabs{
+  display:flex;
+  background:var(--paper2);
+  border-bottom:2px solid var(--border2);
+  overflow-x:auto;scrollbar-width:none;
+  flex-shrink:0;width:100%
+}
 #tabs::-webkit-scrollbar{display:none}
-.tab-btn{flex:1;min-width:52px;padding:7px 4px 5px;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:‘Special Elite’,serif;font-size:9px;color:var(–ink3);letter-spacing:.5px;text-transform:uppercase;background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer}
-.tab-btn.active{color:var(–ink);background:var(–paper);border-bottom-color:var(–ink3)}
+.tab-btn{
+  flex:1;min-width:52px;
+  padding:7px 4px 5px;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  font-family:'Special Elite',serif;font-size:9px;
+  color:var(--ink3);letter-spacing:.5px;text-transform:uppercase;
+  background:transparent;border:none;
+  border-bottom:3px solid transparent;
+  cursor:pointer;transition:background .12s
+}
+.tab-btn.active{color:var(--ink);background:var(--paper);border-bottom-color:var(--ink3)}
 .tab-ico{font-size:14px;line-height:1}
 
-/* ── SCREEN ── */
-#screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(–paper);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.22) calc(var(–lh) - 1px),rgba(180,140,80,.22) var(–lh));padding:14px 16px calc(16px + var(–sb));position:relative;min-height:0}
+/* ── SCREEN — scrollovatelná plocha ── */
+#screen{
+  flex:1;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  min-height:0;          /* MUSÍ být — jinak Safari nepustí scroll */
+  width:100%;
+  background:var(--paper);
+  background-image:repeating-linear-gradient(
+    0deg,transparent,transparent calc(var(--lh) - 1px),
+    rgba(180,140,80,.20) calc(var(--lh) - 1px),
+    rgba(180,140,80,.20) var(--lh)
+  );
+  padding:14px 16px calc(20px + var(--sb))
+}
 
-/* ── SHARED COMPONENTS ── */
-.sec-hd{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:4px 0 10px;padding-bottom:3px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:baseline}
-.sec-hd::after{content:‘✦’;color:var(–border);font-size:8px}
+/* ── SHARED ── */
+.sec-hd{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:2px;margin:4px 0 10px;padding-bottom:3px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline}
+.sec-hd::after{content:'✦';color:var(--border);font-size:8px}
 .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;gap:10px;opacity:.5}
 .placeholder-icon{font-size:48px}
-.placeholder-text{font-family:‘Caveat’,cursive;font-size:18px;color:var(–ink2);text-align:center}
-.placeholder-sub{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;text-align:center}
-.tab-fab{position:absolute;bottom:calc(20px + var(–sb));right:16px;width:50px;height:50px;border-radius:50%;background:var(–leather);border:2px solid var(–border2);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(–gold);cursor:pointer;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-.tab-fab:active{background:var(–leather2);transform:scale(.95)}
+.placeholder-text{font-family:'Caveat',cursive;font-size:18px;color:var(--ink2);text-align:center}
+.placeholder-sub{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;text-align:center}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(44,26,10,.72);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(–sb)}
-.modal-sheet{background:var(–paper);border-radius:6px 6px 0 0;width:100%;max-width:430px;padding:20px 18px 24px;border-top:3px double var(–border);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.18) calc(var(–lh) - 1px),rgba(180,140,80,.18) var(–lh));max-height:88vh;overflow-y:auto}
-@supports (max-height:88dvh){.modal-sheet{max-height:88dvh}}
-.modal-title{font-size:12px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;padding-bottom:4px;border-bottom:1px solid var(–border)}
+/* FAB — absolutní vůči #app, vždy viditelné nad scrollem */
+.tab-fab{
+  position:absolute;
+  bottom:calc(18px + var(--sb));
+  right:16px;
+  width:50px;height:50px;border-radius:50%;
+  background:var(--leather);border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;color:var(--gold);
+  cursor:pointer;z-index:50;
+  box-shadow:0 3px 10px rgba(0,0,0,.45)
+}
+.tab-fab:active{transform:scale(.93)}
+
+/* ── MODAL — centrovaný na #app šířku ── */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(20,10,2,.75);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:100;
+  padding-bottom:var(--sb)
+}
+.modal-sheet{
+  background:var(--paper);
+  border-radius:8px 8px 0 0;
+  width:100%;max-width:430px;
+  padding:20px 18px 28px;
+  border-top:3px double var(--border);
+  background-image:repeating-linear-gradient(
+    0deg,transparent,transparent calc(var(--lh) - 1px),
+    rgba(180,140,80,.16) calc(var(--lh) - 1px),
+    rgba(180,140,80,.16) var(--lh)
+  );
+  max-height:88vh;
+  overflow-y:auto
+}
+.modal-title{font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;padding-bottom:4px;border-bottom:1px solid var(--border)}
 .field-row{margin-bottom:12px}
-.field-label{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px}
-.field-input,.field-textarea{width:100%;font-family:‘Caveat’,cursive;font-size:18px;color:var(–ink);background:rgba(255,255,255,.5);border:1px solid var(–border);border-radius:2px;padding:7px 10px;outline:none}
+.field-label{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px}
+.field-input,.field-textarea{
+  width:100%;
+  font-family:'Caveat',cursive;font-size:18px;color:var(--ink);
+  background:rgba(255,255,255,.55);
+  border:1px solid var(--border);border-radius:2px;
+  padding:7px 10px;outline:none
+}
 .field-textarea{resize:none;min-height:100px;line-height:1.55}
-.field-input:focus,.field-textarea:focus{border-color:var(–ink3);background:rgba(255,255,255,.75)}
+.field-input:focus,.field-textarea:focus{border-color:var(--ink3);background:rgba(255,255,255,.8)}
 .modal-btns{display:flex;gap:8px;margin-top:16px}
-.btn-primary{flex:1;padding:11px;background:var(–leather);color:var(–gold);border:2px solid var(–ink3);border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
-.btn-primary:active{background:var(–leather2)}
-.btn-secondary{padding:11px 14px;background:transparent;color:var(–ink3);border:1px solid var(–border);border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
-.btn-danger{padding:11px 14px;background:transparent;color:var(–red);border:1px solid var(–red);border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.btn-primary{flex:1;padding:11px;background:var(--leather);color:var(--gold);border:2px solid var(--ink3);border-radius:3px;font-family:'Special Elite',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.btn-primary:active{background:var(--leather2)}
+.btn-secondary{padding:11px 14px;background:transparent;color:var(--ink3);border:1px solid var(--border);border-radius:3px;font-family:'Special Elite',serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.btn-danger{padding:11px 14px;background:transparent;color:var(--red);border:1px solid var(--red);border-radius:3px;font-family:'Special Elite',serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 .tag-toggle-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.tag-toggle{font-family:‘Special Elite’,serif;font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:2px;border:1px solid var(–border);background:rgba(255,255,255,.3);color:var(–ink3);cursor:pointer}
-.tag-toggle.on{border-color:var(–ink);background:rgba(255,255,255,.75);color:var(–ink)}
+.tag-toggle{font-family:'Special Elite',serif;font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:2px;border:1px solid var(--border);background:rgba(255,255,255,.3);color:var(--ink3);cursor:pointer}
+.tag-toggle.on{border-color:var(--ink);background:rgba(255,255,255,.75);color:var(--ink)}
 .mood-row{display:flex;gap:8px;margin-top:4px}
-.mood-btn{flex:1;padding:8px 4px;border:1.5px solid var(–border);border-radius:2px;background:rgba(255,255,255,.3);font-size:22px;cursor:pointer;text-align:center}
-.mood-btn.on{border-color:var(–ink);background:rgba(255,255,255,.72)}
+.mood-btn{flex:1;padding:8px 4px;border:1.5px solid var(--border);border-radius:2px;background:rgba(255,255,255,.3);font-size:22px;cursor:pointer;text-align:center}
+.mood-btn.on{border-color:var(--ink);background:rgba(255,255,255,.72)}
 .rating-row{display:flex;gap:6px;margin-top:4px}
 .rating-star{font-size:22px;cursor:pointer;opacity:.28;transition:opacity .1s;padding:2px}
 .rating-star.on{opacity:1}
 
 /* ── STATS ── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-card{background:rgba(255,255,255,.5);border:1px solid var(–border);border-radius:2px;padding:9px 10px;position:relative;overflow:hidden;cursor:pointer;transition:background .15s}
+.stat-card{background:rgba(255,255,255,.5);border:1px solid var(--border);border-radius:2px;padding:9px 10px;position:relative;overflow:hidden;cursor:pointer;transition:background .15s}
 .stat-card:active{background:rgba(255,255,255,.75)}
-.stat-card::after{content:’’;position:absolute;bottom:0;right:0;width:14px;height:14px;border-top:14px solid var(–border);border-left:14px solid transparent;opacity:.5}
-.stat-lbl{font-size:8px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
-.stat-val{font-family:‘Caveat’,cursive;font-size:22px;font-weight:700;color:var(–ink);line-height:1.05}
-.stat-sub{font-size:8px;color:var(–ink3);margin-top:1px}
-.counter-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(–border)}
+.stat-card::after{content:'';position:absolute;bottom:0;right:0;width:14px;height:14px;border-top:14px solid var(--border);border-left:14px solid transparent;opacity:.5}
+.stat-lbl{font-size:8px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.stat-val{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--ink);line-height:1.05}
+.stat-sub{font-size:8px;color:var(--ink3);margin-top:1px}
+.counter-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--border)}
 .counter-emoji{font-size:16px;flex-shrink:0;width:22px;text-align:center}
-.counter-name{font-family:‘Caveat’,cursive;font-size:16px;color:var(–ink);flex:1}
-.counter-val{font-family:‘Caveat’,cursive;font-size:22px;font-weight:700;color:var(–leather);min-width:32px;text-align:center}
-.cnt-btn{width:30px;height:30px;border:2px solid var(–ink3);background:var(–paper2);border-radius:3px;font-size:18px;font-weight:700;color:var(–leather);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.cnt-btn:active{background:var(–paper3)}
-.add-dashed{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;margin-top:10px;border:2px dashed var(–border);background:transparent;border-radius:3px;font-family:‘Special Elite’,serif;font-size:11px;color:var(–ink3);letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.counter-name{font-family:'Caveat',cursive;font-size:16px;color:var(--ink);flex:1}
+.counter-val{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--leather);min-width:32px;text-align:center}
+.cnt-btn{width:30px;height:30px;border:2px solid var(--ink3);background:var(--paper2);border-radius:3px;font-size:18px;font-weight:700;color:var(--leather);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cnt-btn:active{background:var(--paper3)}
+.add-dashed{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;margin-top:10px;border:2px dashed var(--border);background:transparent;border-radius:3px;font-family:'Special Elite',serif;font-size:11px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .15s}
 .add-dashed:active{background:rgba(255,255,255,.4)}
 .emoji-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.emoji-opt{width:36px;height:36px;font-size:20px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(–border);border-radius:3px;background:rgba(255,255,255,.4);cursor:pointer}
-.emoji-opt.on{border-color:var(–ink);background:rgba(255,255,255,.75)}
+.emoji-opt{width:36px;height:36px;font-size:20px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--border);border-radius:3px;background:rgba(255,255,255,.4);cursor:pointer}
+.emoji-opt.on{border-color:var(--ink);background:rgba(255,255,255,.75)}
 
 /* ── DIARY ── */
-.day-hd{font-family:‘Special Elite’,serif;font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:14px 0 8px;padding-bottom:3px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:baseline}
+.day-hd{font-family:'Special Elite',serif;font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:2px;margin:14px 0 8px;padding-bottom:3px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline}
 .day-hd:first-child{margin-top:0}
-.day-hd::after{content:‘✦’;color:var(–border);font-size:8px}
-.diary-card{background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:10px 12px 10px 14px;margin-bottom:8px;position:relative;cursor:pointer;transition:background .15s;user-select:none;-webkit-user-select:none}
+.day-hd::after{content:'✦';color:var(--border);font-size:8px}
+.diary-card{background:rgba(255,255,255,.48);border:1px solid var(--border);border-radius:2px;padding:10px 12px 10px 14px;margin-bottom:8px;position:relative;cursor:pointer;transition:background .15s;user-select:none;-webkit-user-select:none}
 .diary-card:active{background:rgba(255,255,255,.72)}
-.diary-card::before{content:’’;position:absolute;left:0;top:0;bottom:0;width:4px;background:var(–ink3);border-radius:2px 0 0 2px}
-.diary-card.mood-great::before{background:var(–green)}
-.diary-card.mood-good::before{background:var(–gold2)}
+.diary-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ink3);border-radius:2px 0 0 2px}
+.diary-card.mood-great::before{background:var(--green)}
+.diary-card.mood-good::before{background:var(--gold2)}
 .diary-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.diary-time{font-size:9px;color:var(–ink3);letter-spacing:1px;text-transform:uppercase}
-.diary-loc{font-size:9px;color:var(–ink3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.diary-body{font-family:‘Caveat’,cursive;font-size:15px;color:var(–ink);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.diary-time{font-size:9px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase}
+.diary-loc{font-size:9px;color:var(--ink3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diary-body{font-family:'Caveat',cursive;font-size:15px;color:var(--ink);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .diary-card.open .diary-body{display:block;-webkit-line-clamp:unset}
-.diary-hint{font-size:8px;color:var(–border2);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.diary-hint{font-size:8px;color:var(--border2);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
 .diary-card.open .diary-hint{text-align:right}
 .diary-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .diary-tag{font-size:8px;padding:2px 7px;border-radius:2px;letter-spacing:.5px;text-transform:uppercase}
@@ -130,50 +216,50 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 
 /* ── ITIN ── */
 .day-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.day-nav-btn{width:32px;height:32px;border:1.5px solid var(–border);border-radius:2px;background:rgba(255,255,255,.4);font-size:16px;color:var(–ink3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.day-nav-btn{width:32px;height:32px;border:1.5px solid var(--border);border-radius:2px;background:rgba(255,255,255,.4);font-size:16px;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .day-nav-btn:disabled{opacity:.3;cursor:default}
-.day-nav-lbl{flex:1;text-align:center;font-size:11px;color:var(–ink);letter-spacing:1px;text-transform:uppercase}
-.day-nav-sub{font-size:8px;color:var(–ink3);display:block;margin-top:1px;text-transform:none;letter-spacing:0}
-.progress-bar{height:3px;background:var(–paper3);border-radius:2px;margin-bottom:14px;overflow:hidden}
-.progress-fill{height:100%;background:var(–green);border-radius:2px;transition:width .3s}
+.day-nav-lbl{flex:1;text-align:center;font-size:11px;color:var(--ink);letter-spacing:1px;text-transform:uppercase}
+.day-nav-sub{font-size:8px;color:var(--ink3);display:block;margin-top:1px;text-transform:none;letter-spacing:0}
+.progress-bar{height:3px;background:var(--paper3);border-radius:2px;margin-bottom:14px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
 .itin-item{display:flex;gap:0;position:relative}
-.itin-item:not(:last-child) .itin-dot-col::after{content:’’;position:absolute;left:15px;top:28px;bottom:-8px;width:1px;background:var(–border)}
+.itin-item:not(:last-child) .itin-dot-col::after{content:'';position:absolute;left:15px;top:28px;bottom:-8px;width:1px;background:var(--border)}
 .itin-dot-col{width:32px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:6px;position:relative}
-.itin-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(–border2);background:var(–paper);z-index:1;transition:background .2s}
-.itin-dot.done{background:var(–green);border-color:var(–green2)}
-.itin-dot.warn{background:var(–red);border-color:#8b2a20}
-.itin-card{flex:1;margin-left:10px;margin-bottom:10px;background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:9px 12px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.itin-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border2);background:var(--paper);z-index:1;transition:background .2s}
+.itin-dot.done{background:var(--green);border-color:var(--green2)}
+.itin-dot.warn{background:var(--red);border-color:#8b2a20}
+.itin-card{flex:1;margin-left:10px;margin-bottom:10px;background:rgba(255,255,255,.48);border:1px solid var(--border);border-radius:2px;padding:9px 12px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
 .itin-card:active{background:rgba(255,255,255,.72)}
 .itin-card.done{opacity:.65}
-.itin-card.done::after{content:’’;position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 6px,rgba(180,140,80,.07) 6px,rgba(180,140,80,.07) 7px)}
+.itin-card.done::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 6px,rgba(180,140,80,.07) 6px,rgba(180,140,80,.07) 7px)}
 .itin-time-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.itin-time{font-size:10px;color:var(–ink3);letter-spacing:1px}
+.itin-time{font-size:10px;color:var(--ink3);letter-spacing:1px}
 .itin-chk{font-size:14px;padding:2px 4px;cursor:pointer}
-.itin-name{font-family:‘Caveat’,cursive;font-size:16px;font-weight:700;color:var(–ink);line-height:1.2;margin-bottom:2px}
-.itin-note{font-family:‘Caveat’,cursive;font-size:13px;color:var(–ink2);line-height:1.4}
+.itin-name{font-family:'Caveat',cursive;font-size:16px;font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:2px}
+.itin-note{font-family:'Caveat',cursive;font-size:13px;color:var(--ink2);line-height:1.4}
 .itin-badge{display:inline-block;font-size:7px;letter-spacing:.5px;text-transform:uppercase;padding:1px 5px;border-radius:2px;margin-top:5px}
 .icat-food{background:#fce8c0;color:#7a4010;border:1px solid #c4882a}
 .icat-sight{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
 .icat-move{background:#e0ecf8;color:#1a4878;border:1px solid #6a9ac8}
 .icat-sleep{background:#e8d8f0;color:#5a2878;border:1px solid #9870b8}
-.icat-other{background:var(–paper3);color:var(–ink3);border:1px solid var(–border)}
+.icat-other{background:var(--paper3);color:var(--ink3);border:1px solid var(--border)}
 
 /* ── MAP / PLACES ── */
 .filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .filter-row::-webkit-scrollbar{display:none}
-.filter-btn{font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:2px;white-space:nowrap;border:1px solid var(–border);background:rgba(255,255,255,.3);color:var(–ink3);cursor:pointer;flex-shrink:0}
-.filter-btn.on{background:var(–leather);color:var(–gold);border-color:var(–ink3)}
-.map-wrap{border:1px solid var(–border);border-radius:2px;margin-bottom:14px;overflow:hidden;background:#ede0b8}
+.filter-btn{font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:2px;white-space:nowrap;border:1px solid var(--border);background:rgba(255,255,255,.3);color:var(--ink3);cursor:pointer;flex-shrink:0}
+.filter-btn.on{background:var(--leather);color:var(--gold);border-color:var(--ink3)}
+.map-wrap{border:1px solid var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden;background:#ede0b8}
 .map-wrap svg{width:100%;display:block}
 .places-list{display:flex;flex-direction:column;gap:8px}
-.place-card{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:10px 12px;cursor:pointer;transition:background .15s;position:relative}
+.place-card{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.48);border:1px solid var(--border);border-radius:2px;padding:10px 12px;cursor:pointer;transition:background .15s;position:relative}
 .place-card:active{background:rgba(255,255,255,.72)}
-.place-card.visited::after{content:‘✓’;position:absolute;top:7px;right:10px;font-size:11px;color:var(–green)}
+.place-card.visited::after{content:'✓';position:absolute;top:7px;right:10px;font-size:11px;color:var(--green)}
 .place-ico{font-size:22px;flex-shrink:0;width:32px;text-align:center;padding-top:1px}
 .place-body{flex:1;min-width:0;padding-right:16px}
-.place-name{font-family:‘Caveat’,cursive;font-size:16px;font-weight:700;color:var(–ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.place-addr{font-size:9px;color:var(–ink3);letter-spacing:.5px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.place-note{font-family:‘Caveat’,cursive;font-size:13px;color:var(–ink2);line-height:1.4}
+.place-name{font-family:'Caveat',cursive;font-size:16px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-addr{font-size:9px;color:var(--ink3);letter-spacing:.5px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-note{font-family:'Caveat',cursive;font-size:13px;color:var(--ink2);line-height:1.4}
 .place-footer{display:flex;align-items:center;gap:8px;margin-top:5px}
 .place-stars{font-size:11px;color:#c07820}
 .place-badge{font-size:7px;letter-spacing:.5px;text-transform:uppercase;padding:1px 5px;border-radius:2px}
@@ -181,58 +267,57 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 .pcat-food{background:#d4e8d4;color:#1a4820;border:1px solid #5a9860}
 .pcat-bakery{background:#fde8d0;color:#7a3010;border:1px solid #c4682a}
 .pcat-sight{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
-.pcat-other{background:var(–paper3);color:var(–ink3);border:1px solid var(–border)}
+.pcat-other{background:var(--paper3);color:var(--ink3);border:1px solid var(--border)}
 
 /* ── CHECK ── */
 .check-list{display:flex;flex-direction:column;gap:0}
-.check-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(–border);cursor:pointer}
-.check-box{width:18px;height:18px;border:2px solid var(–ink3);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5);transition:background .15s}
-.check-box.done{background:var(–green);border-color:var(–green2)}
-.check-text{font-family:‘Caveat’,cursive;font-size:15px;color:var(–ink);flex:1}
-.check-text.done{color:var(–ink3);text-decoration:line-through}
-.check-note{font-size:10px;color:var(–ink3)}
-.check-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid var(–border);border-radius:3px;overflow:hidden}
-.check-tab{flex:1;padding:8px;background:transparent;border:none;font-family:‘Special Elite’,serif;font-size:10px;color:var(–ink3);letter-spacing:1px;text-transform:uppercase;cursor:pointer}
-.check-tab.on{background:var(–leather);color:var(–gold)}
+.check-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--border);cursor:pointer}
+.check-box{width:18px;height:18px;border:2px solid var(--ink3);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5);transition:background .15s}
+.check-box.done{background:var(--green);border-color:var(--green2)}
+.check-text{font-family:'Caveat',cursive;font-size:15px;color:var(--ink);flex:1}
+.check-text.done{color:var(--ink3);text-decoration:line-through}
+.check-note{font-size:10px;color:var(--ink3)}
+.check-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.check-tab{flex:1;padding:8px;background:transparent;border:none;font-family:'Special Elite',serif;font-size:10px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.check-tab.on{background:var(--leather);color:var(--gold)}
 
 /* ── RECIPES ── */
-.recipe-card{background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.recipe-card{background:rgba(255,255,255,.48);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .15s}
 .recipe-card:active{background:rgba(255,255,255,.72)}
-.recipe-title{font-size:14px;color:var(–ink);letter-spacing:1px;margin-bottom:2px}
-.recipe-src{font-size:8px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.recipe-slbl{font-size:8px;color:var(–ink3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
-.recipe-text{font-family:‘Caveat’,cursive;font-size:14px;color:var(–ink2);line-height:1.5}
-.recipe-divider{border:none;border-top:1px dashed var(–border);margin:8px 0}
+.recipe-title{font-size:14px;color:var(--ink);letter-spacing:1px;margin-bottom:2px}
+.recipe-src{font-size:8px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.recipe-slbl{font-size:8px;color:var(--ink3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.recipe-text{font-family:'Caveat',cursive;font-size:14px;color:var(--ink2);line-height:1.5}
+.recipe-divider{border:none;border-top:1px dashed var(--border);margin:8px 0}
 .recipe-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-.recipe-tag{font-size:7px;padding:2px 6px;border-radius:2px;background:var(–paper3);color:var(–ink3);border:1px solid var(–border);text-transform:uppercase;letter-spacing:.5px}
+.recipe-tag{font-size:7px;padding:2px 6px;border-radius:2px;background:var(--paper3);color:var(--ink3);border:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
 
 /* ── TRIPS ── */
 .trip-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-.trip-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.48);border:1px solid var(–border);border-radius:2px;padding:11px 14px;cursor:pointer;transition:background .15s}
+.trip-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.48);border:1px solid var(--border);border-radius:2px;padding:11px 14px;cursor:pointer;transition:background .15s}
 .trip-item:active{background:rgba(255,255,255,.72)}
-.trip-item.cur{border-color:var(–ink3);background:rgba(255,255,255,.65)}
-.trip-name{font-family:‘Caveat’,cursive;font-size:17px;font-weight:700;color:var(–ink)}
-.trip-dates{font-size:9px;color:var(–ink3);letter-spacing:.5px;margin-top:1px}
-.trip-cur-badge{font-size:8px;color:var(–green);border:1px solid var(–green);border-radius:2px;padding:1px 5px;text-transform:uppercase;letter-spacing:1px}
+.trip-item.cur{border-color:var(--ink3);background:rgba(255,255,255,.65)}
+.trip-name{font-family:'Caveat',cursive;font-size:17px;font-weight:700;color:var(--ink)}
+.trip-dates{font-size:9px;color:var(--ink3);letter-spacing:.5px;margin-top:1px}
+.trip-cur-badge{font-size:8px;color:var(--green);border:1px solid var(--green);border-radius:2px;padding:1px 5px;text-transform:uppercase;letter-spacing:1px}
 
 /* ── SETTINGS ── */
-.sset-sec{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:16px 0 8px;padding-bottom:3px;border-bottom:1px solid var(–border)}
-.sset-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(–border);gap:12px}
-.sset-lbl{font-family:‘Caveat’,cursive;font-size:15px;color:var(–ink);flex:1}
-.sset-sub{font-size:8px;color:var(–ink3);letter-spacing:.5px;display:block;margin-top:1px}
-.sset-btn{font-size:9px;color:var(–ink3);border:1px solid var(–border);border-radius:2px;background:rgba(255,255,255,.4);padding:6px 10px;cursor:pointer;white-space:nowrap;letter-spacing:.5px;text-transform:uppercase}
-.sset-btn.pri{background:var(–leather);color:var(–gold);border-color:var(–ink3)}
+.sset-sec{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:2px;margin:16px 0 8px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.sset-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--border);gap:12px}
+.sset-lbl{font-family:'Caveat',cursive;font-size:15px;color:var(--ink);flex:1}
+.sset-sub{font-size:8px;color:var(--ink3);letter-spacing:.5px;display:block;margin-top:1px}
+.sset-btn{font-size:9px;color:var(--ink3);border:1px solid var(--border);border-radius:2px;background:rgba(255,255,255,.4);padding:6px 10px;cursor:pointer;white-space:nowrap;letter-spacing:.5px;text-transform:uppercase}
+.sset-btn.pri{background:var(--leather);color:var(--gold);border-color:var(--ink3)}
 .fb-badge{font-size:9px;padding:5px 9px;border-radius:2px;letter-spacing:.5px;text-transform:uppercase}
 .fb-ok{background:#d4e8c4;color:#2d5020;border:1px solid #7a9860}
-.fb-off{background:var(–paper3);color:var(–ink3);border:1px solid var(–border)}
+.fb-off{background:var(--paper3);color:var(--ink3);border:1px solid var(--border)}
 .fb-err{background:#fce8c0;color:#7a3010;border:1px solid #c4682a}
 .fb-ing{background:#fce8c0;color:#7a3010;border:1px solid #c4682a}
 
 /* ── TOAST ── */
-#toast{position:fixed;bottom:calc(16px + var(–sb));left:50%;transform:translateX(-50%) translateY(80px);background:var(–leather);color:var(–gold);border:1px solid var(–border);border-radius:3px;padding:8px 16px;font-size:11px;letter-spacing:1px;text-transform:uppercase;z-index:200;transition:transform .25s ease;white-space:nowrap;pointer-events:none}
+#toast{position:fixed;bottom:calc(16px + var(--sb));left:50%;transform:translateX(-50%) translateY(80px);background:var(--leather);color:var(--gold);border:1px solid var(--border);border-radius:3px;padding:8px 16px;font-size:11px;letter-spacing:1px;text-transform:uppercase;z-index:200;transition:transform .25s ease;white-space:nowrap;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
 </style>
-
 </head>
 <body>
 <div id="app">
@@ -269,7 +354,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 <!-- ══ MODALS ══ -->
 
 <!-- Counter -->
-
 <div class="modal-overlay hidden" id="m-counter">
   <div class="modal-sheet">
     <div class="modal-title" id="mc-ttl">Nový čítač</div>
@@ -285,7 +369,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Stat edit -->
-
 <div class="modal-overlay hidden" id="m-stat">
   <div class="modal-sheet">
     <div class="modal-title" id="ms-ttl">Upravit</div>
@@ -299,7 +382,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Diary -->
-
 <div class="modal-overlay hidden" id="m-diary">
   <div class="modal-sheet">
     <div class="modal-title" id="md-ttl">Nový záznam</div>
@@ -329,7 +411,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Itin -->
-
 <div class="modal-overlay hidden" id="m-itin">
   <div class="modal-sheet">
     <div class="modal-title" id="mi-ttl">Nová zastávka</div>
@@ -354,7 +435,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Place -->
-
 <div class="modal-overlay hidden" id="m-place">
   <div class="modal-sheet">
     <div class="modal-title" id="mp-ttl">Nové místo</div>
@@ -394,7 +474,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Check item -->
-
 <div class="modal-overlay hidden" id="m-check">
   <div class="modal-sheet">
     <div class="modal-title" id="mch-ttl">Položka</div>
@@ -409,7 +488,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Recipe -->
-
 <div class="modal-overlay hidden" id="m-recipe">
   <div class="modal-sheet">
     <div class="modal-title" id="mr-ttl">Nový recept</div>
@@ -427,7 +505,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- New trip -->
-
 <div class="modal-overlay hidden" id="m-newtrip">
   <div class="modal-sheet">
     <div class="modal-title">Nová výprava</div>
@@ -442,7 +519,6 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Trips manager -->
-
 <div class="modal-overlay hidden" id="m-trips">
   <div class="modal-sheet">
     <div class="modal-title">Moje výpravy</div>
@@ -452,45 +528,41 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 </div>
 
 <!-- Settings -->
-
 <div class="modal-overlay hidden" id="m-settings">
   <div class="modal-sheet">
     <div class="modal-title">⚙ Nastavení & Data</div>
 
-```
-<div class="sset-sec">Záloha dat</div>
-<div class="sset-row">
-  <span class="sset-lbl">Exportovat výpravu<span class="sset-sub">Stáhne JSON soubor se vším</span></span>
-  <button class="sset-btn pri" onclick="exportTrip()">⬇ Export</button>
-</div>
-<div class="sset-row">
-  <span class="sset-lbl">Importovat výpravu<span class="sset-sub">Načte JSON ze souboru</span></span>
-  <button class="sset-btn" onclick="document.getElementById('imp-file').click()">⬆ Import</button>
-  <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importTrip(event)">
-</div>
+    <div class="sset-sec">Záloha dat</div>
+    <div class="sset-row">
+      <span class="sset-lbl">Exportovat výpravu<span class="sset-sub">Stáhne JSON soubor se vším</span></span>
+      <button class="sset-btn pri" onclick="exportTrip()">⬇ Export</button>
+    </div>
+    <div class="sset-row">
+      <span class="sset-lbl">Importovat výpravu<span class="sset-sub">Načte JSON ze souboru</span></span>
+      <button class="sset-btn" onclick="document.getElementById('imp-file').click()">⬆ Import</button>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importTrip(event)">
+    </div>
 
-<div class="sset-sec">Firebase Sync</div>
-<div class="sset-row">
-  <span class="sset-lbl">Stav<span class="sset-sub" id="fb-txt">Nezapnuto</span></span>
-  <span class="fb-badge fb-off" id="fb-badge">OFF</span>
-</div>
-<div class="field-row" style="margin-top:8px"><label class="field-label">Firebase API Key</label><input class="field-input" id="fb-key" placeholder="AIzaSy…" autocomplete="off"></div>
-<div class="field-row"><label class="field-label">Database URL</label><input class="field-input" id="fb-url" placeholder="https://xxx.firebaseio.com"></div>
-<div class="field-row"><label class="field-label">Kód výpravy (sdílený klíč)</label><input class="field-input" id="fb-trip" placeholder="rodina2025" autocomplete="off"></div>
-<div class="modal-btns" style="margin-top:4px">
-  <button class="btn-secondary" onclick="fbDisconnect()">Odpojit</button>
-  <button class="btn-primary" onclick="fbConnect()">Připojit ✦</button>
-</div>
-<p style="font-size:8px;color:var(--ink3);margin-top:8px;line-height:1.6;letter-spacing:.5px">Firebase Realtime DB umožňuje live sync. Vyžaduje vlastní projekt. Klíče jsou uloženy jen lokálně.</p>
+    <div class="sset-sec">Firebase Sync</div>
+    <div class="sset-row">
+      <span class="sset-lbl">Stav<span class="sset-sub" id="fb-txt">Nezapnuto</span></span>
+      <span class="fb-badge fb-off" id="fb-badge">OFF</span>
+    </div>
+    <div class="field-row" style="margin-top:8px"><label class="field-label">Firebase API Key</label><input class="field-input" id="fb-key" placeholder="AIzaSy…" autocomplete="off"></div>
+    <div class="field-row"><label class="field-label">Database URL</label><input class="field-input" id="fb-url" placeholder="https://xxx.firebaseio.com"></div>
+    <div class="field-row"><label class="field-label">Kód výpravy (sdílený klíč)</label><input class="field-input" id="fb-trip" placeholder="rodina2025" autocomplete="off"></div>
+    <div class="modal-btns" style="margin-top:4px">
+      <button class="btn-secondary" onclick="fbDisconnect()">Odpojit</button>
+      <button class="btn-primary" onclick="fbConnect()">Připojit ✦</button>
+    </div>
+    <p style="font-size:8px;color:var(--ink3);margin-top:8px;line-height:1.6;letter-spacing:.5px">Firebase Realtime DB umožňuje live sync. Vyžaduje vlastní projekt. Klíče jsou uloženy jen lokálně.</p>
 
-<div class="sset-sec">Výprava</div>
-<div class="sset-row">
-  <span class="sset-lbl">Smazat výpravu<span class="sset-sub">Nevratně smaže vše pro tuto cestu</span></span>
-  <button class="sset-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteTrip()">✕ Smazat</button>
-</div>
-<div class="modal-btns" style="margin-top:16px"><button class="btn-primary" style="width:100%" onclick="closeModal('m-settings')">Zavřít</button></div>
-```
-
+    <div class="sset-sec">Výprava</div>
+    <div class="sset-row">
+      <span class="sset-lbl">Smazat výpravu<span class="sset-sub">Nevratně smaže vše pro tuto cestu</span></span>
+      <button class="sset-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteTrip()">✕ Smazat</button>
+    </div>
+    <div class="modal-btns" style="margin-top:16px"><button class="btn-primary" style="width:100%" onclick="closeModal('m-settings')">Zavřít</button></div>
   </div>
 </div>
 
@@ -1494,6 +1566,5 @@ document.getElementById('hd-trip').addEventListener('click', openTripManager);
 
 boot();
 </script>
-
 </body>
 </html>
