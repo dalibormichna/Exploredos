@@ -8,11 +8,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ExploreOS">
 <title>ExploreOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#1a0e05;overscroll-behavior:none}
-body{display:flex;flex-direction:column;align-items:center;font-family:'Special Elite','Courier New',serif}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:'Special Elite','Courier New',serif}
 :root{
   --paper:#f5e6c8;--paper2:#ede0b8;--paper3:#e4d4a0;
   --ink:#2c1a0a;--ink2:#6b4020;--ink3:#8b5e2a;
@@ -20,12 +22,14 @@ body{display:flex;flex-direction:column;align-items:center;font-family:'Special 
   --border:#c4a46a;--border2:#a8884e;
   --gold:#f0c878;--gold2:#c4923a;
   --red:#c0392b;--green:#5c8a3c;--green2:#3d6028;
-  --lh:28px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)
+  --lh:28px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  --app-w:min(430px,100vw)
 }
 .hidden{display:none!important}
 
 /* ── APP ── */
-#app{width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;background:var(–leather2);padding-top:var(–st)}
+#app{width:var(–app-w);max-width:430px;height:100dvh;height:100vh;display:flex;flex-direction:column;background:var(–leather2);padding-top:var(–st);position:relative}
+@supports (height:100dvh){#app{height:100dvh}}
 
 /* ── HEADER ── */
 #hdr{background:var(–leather);padding:10px 14px 8px;border-bottom:3px double var(–border);flex-shrink:0}
@@ -44,7 +48,7 @@ body{display:flex;flex-direction:column;align-items:center;font-family:'Special 
 .tab-ico{font-size:14px;line-height:1}
 
 /* ── SCREEN ── */
-#screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(–paper);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.22) calc(var(–lh) - 1px),rgba(180,140,80,.22) var(–lh));padding:14px 16px calc(16px + var(–sb));position:relative}
+#screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(–paper);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.22) calc(var(–lh) - 1px),rgba(180,140,80,.22) var(–lh));padding:14px 16px calc(16px + var(–sb));position:relative;min-height:0}
 
 /* ── SHARED COMPONENTS ── */
 .sec-hd{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin:4px 0 10px;padding-bottom:3px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:baseline}
@@ -53,12 +57,13 @@ body{display:flex;flex-direction:column;align-items:center;font-family:'Special 
 .placeholder-icon{font-size:48px}
 .placeholder-text{font-family:‘Caveat’,cursive;font-size:18px;color:var(–ink2);text-align:center}
 .placeholder-sub{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;text-align:center}
-.tab-fab{position:fixed;bottom:calc(20px + var(–sb));right:50%;transform:translateX(calc(50% - 195px));width:50px;height:50px;border-radius:50%;background:var(–leather);border:2px solid var(–border2);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(–gold);cursor:pointer;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-.tab-fab:active{background:var(–leather2);transform:translateX(calc(50% - 195px)) scale(.95)}
+.tab-fab{position:absolute;bottom:calc(20px + var(–sb));right:16px;width:50px;height:50px;border-radius:50%;background:var(–leather);border:2px solid var(–border2);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(–gold);cursor:pointer;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.tab-fab:active{background:var(–leather2);transform:scale(.95)}
 
 /* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(44,26,10,.72);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding-bottom:var(–sb)}
-.modal-sheet{background:var(–paper);border-radius:6px 6px 0 0;width:100%;max-width:430px;padding:20px 18px 24px;border-top:3px double var(–border);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.18) calc(var(–lh) - 1px),rgba(180,140,80,.18) var(–lh));max-height:92dvh;overflow-y:auto}
+.modal-sheet{background:var(–paper);border-radius:6px 6px 0 0;width:100%;max-width:430px;padding:20px 18px 24px;border-top:3px double var(–border);background-image:repeating-linear-gradient(0deg,transparent,transparent calc(var(–lh) - 1px),rgba(180,140,80,.18) calc(var(–lh) - 1px),rgba(180,140,80,.18) var(–lh));max-height:88vh;overflow-y:auto}
+@supports (max-height:88dvh){.modal-sheet{max-height:88dvh}}
 .modal-title{font-size:12px;color:var(–ink3);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;padding-bottom:4px;border-bottom:1px solid var(–border)}
 .field-row{margin-bottom:12px}
 .field-label{font-size:9px;color:var(–ink3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px}
